@@ -1,0 +1,28 @@
+.padding-top {
+    padding: 21px 0;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.float-left {
+    float: left;
+}
+
+.float-right {
+    float: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+@media (max-width: 767px) {
+    .float-left {
+        float: none;
+    }
+    .float-right {
+        float: none;
+    }
+}
