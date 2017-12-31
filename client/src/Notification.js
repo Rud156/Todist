@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import NotificationSystem from 'react-notification-system';
-
-import HomePage from './components/HomePage';
 import { connect } from 'react-redux';
 
-class App extends Component {
+class Notification extends Component {
     componentDidMount() {
         this.notificationSystem = this.refs.notificationSystem;
     }
@@ -24,7 +22,6 @@ class App extends Component {
         return (
             <div>
                 <NotificationSystem ref='notificationSystem' />
-                <HomePage />
             </div>
         );
     }
@@ -36,4 +33,4 @@ function mapStateToProps(state) {
     };
 }
 
-export default connect(mapStateToProps)(App);
+export default connect(mapStateToProps)(Notification);

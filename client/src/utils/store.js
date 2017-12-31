@@ -1,7 +1,4 @@
-import {
-    createStore,
-    combineReducers
-} from 'redux';
+import { createStore, combineReducers } from 'redux';
 
 import NotificationReducer from './../reducers/NotificationReducer';
 import UserReducer from './../reducers/UserReducer';
