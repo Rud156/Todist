@@ -12,8 +12,7 @@ class Notification extends Component {
             let length = nextProps.notification.messages.length;
             this.notificationSystem.addNotification({
                 message: nextProps.notification.messages[length - 1].message,
-                level: nextProps.notification.messages[length - 1].type,
-                autoDismiss: 0
+                level: nextProps.notification.messages[length - 1].type
             });
         }
     }

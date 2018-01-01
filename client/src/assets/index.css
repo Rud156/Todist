@@ -18,6 +18,24 @@
     text-align: left;
 }
 
+.heading-font {
+    font-size: 20px;
+    font-weight: 400;
+}
+
+a {
+    text-decoration: none;
+    color: rgba(0, 0, 0, .87);
+}
+
+.pushable {
+    height: 100vh !important;
+}
+
+.ui.segment.pushable {
+    margin: 0 !important;
+}
+
 @media (max-width: 767px) {
     .float-left {
         float: none;
