@@ -60,3 +60,18 @@ export const addCategory = (name) => {
         .then(response => response.data)
         .catch(error => handleError(error, ERROR_MESSAGE));
 };
+
+export const addTodo = (title, category) => {
+    return axios.post(`${BASE_URL}/todo/add_todo`, {
+        title,
+        category
+    }, getAuthHeader())
+        .then(response => response.data)
+        .catch(error => handleError(error, ERROR_MESSAGE));
+};
+
+export const getTodoFromCategory = (category) => {
+    return axios.get(`${BASE_URL}/todo/category?category=${category}`, getAuthHeader())
+        .then(response => response.data)
+        .catch(error => handleError(error, ERROR_MESSAGE));
+};

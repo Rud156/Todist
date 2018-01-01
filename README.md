@@ -28,6 +28,7 @@
 
 ### Api Endpoints:
 > All endpoints start with: http://asp-net-todo.azurewebsites.net/api
+> All `todo` routes require a token which is supplied during login
 ```
     /auth/register
     POST
