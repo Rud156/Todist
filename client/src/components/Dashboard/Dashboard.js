@@ -1,21 +1,29 @@
 import React, { Component } from 'react';
 import { Route, BrowserRouter, Switch, NavLink, Redirect } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-import { Sidebar, Segment, Menu, Icon } from 'semantic-ui-react';
+import { Sidebar, Segment, Menu, Icon, Header, Grid, Button } from 'semantic-ui-react';
 
 import { titleCase } from './../../utils/constants';
 import TodoList from './TodoList';
+import { actionRemoveUser } from '../../actions/UserAction';
 
 class Dashboard extends Component {
     constructor(props) {
         super(props);
 
-        console.log(props);
-
         this.state = {
             visible: true
         };
+
+        this.logoutUser = this.logoutUser.bind(this);
+    }
+
+    logoutUser() {
+        this.props.removeUser();
+        this.props.history.push('/');
     }
 
     render() {
@@ -24,26 +32,38 @@ class Dashboard extends Component {
                 <Sidebar.Pushable as={Segment}>
                     <Sidebar as={Menu} animation='push' width='wide' visible={this.state.visible} vertical>
                         <Menu.Item name='User'>
-                            <h2 className='text-center'>
-                                <Icon name='user' />
-                                {titleCase(this.props.user.userDetails.username)}
-                            </h2>
+                            <Grid columns={2} divided>
+                                <Grid.Row>
+                                    <Grid.Column width='twelve' textAlign='center'>
+                                        <h3>
+                                            <Icon name='user' />
+                                            {titleCase(this.props.user.userDetails.username)}
+                                        </h3>
+                                    </Grid.Column>
+                                    <Grid.Column width='four' textAlign='center'>
+                                        <h3 onClick={this.logoutUser} className='pointer-cursor'>
+                                            <Icon name='power' />
+                                        </h3>
+                                    </Grid.Column>
+                                </Grid.Row>
+                            </Grid>
                         </Menu.Item>
                         <Menu.Item name='New List'>
-                            <h3>
-                                <Icon name='add' />
+                            <Header as='h3' color='blue' className='heading-font'>
+                                <Icon name='add' color='blue' />
                                 New List
-                            </h3>
+                            </Header>
                         </Menu.Item>
                         <Menu.Item
                             name='New List'
                             as={NavLink}
                             to={`${this.props.match.url}/today`}
+                            activeClassName='link-active'
                         >
                             <h3>
-                                <Icon name='sun' />
+                                <Icon name='sun' color='orange' />
                                 My Day
-                        </h3>
+                            </h3>
                         </Menu.Item>
                         {
                             this.props.user.userDetails.categories.map(element => {
@@ -54,6 +74,7 @@ class Dashboard extends Component {
                                         as={NavLink}
                                         name='New List'
                                         key={element}
+                                        activeClassName='link-active'
                                     >
                                         {element}
                                     </Menu.Item>
@@ -88,4 +109,10 @@ function mapStateToProps(state) {
     };
 }
 
-export default connect(mapStateToProps)(Dashboard);
+function matchDispatchToProps(dispatch) {
+    return bindActionCreators({
+        removeUser: actionRemoveUser
+    }, dispatch);
+}
+
+export default withRouter(connect(mapStateToProps, matchDispatchToProps)(Dashboard));

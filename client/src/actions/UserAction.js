@@ -10,9 +10,8 @@ export function actionAddUser(user, token) {
         }
     };
 }
-
 export function actionRemoveUser() {
     return {
         type: REMOVE_USER
-    };
+    }
 }

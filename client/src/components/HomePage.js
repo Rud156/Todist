@@ -72,6 +72,8 @@ class HomePage extends Component {
                     if (res.success) {
                         this.props.addUser(res.user, res.token);
                         this.props.history.push('/dashboard');
+                    } else {
+                        this.setState({ loading: false });
                     }
                 });
         }
@@ -104,7 +106,7 @@ class HomePage extends Component {
                     <Grid.Column>
                         <div className='padding-top'>
                             <Header as='h1' color='orange'>Todist</Header>
-                            <Header as='h3' color='teal'>Application for all your todos</Header>
+                            <Header as='h3' color='blue'>Application for all your todos</Header>
                         </div>
                     </Grid.Column>
                 </Grid.Row>
@@ -129,7 +131,7 @@ class HomePage extends Component {
                                         fluid
                                         content={this.state.showLogin ? 'Go To Login' : 'Go To Register'}
                                         onClick={this.toggleLogin}
-                                        color='teal'
+                                        color='blue'
                                     />
                                 </Card.Content>
                             </Card>
@@ -177,7 +179,7 @@ class HomePage extends Component {
                                         <Button
                                             type='submit'
                                             fluid
-                                            color='teal'
+                                            color='blue'
                                             loading={this.state.loading}
                                             disabled={this.state.loading}
                                         >

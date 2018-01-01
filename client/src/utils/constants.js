@@ -4,6 +4,9 @@ export const BASE_URL = 'http://asp-net-todo.azurewebsites.net/api';
 export const usernameRegex = /^[a-zA-Z0-9-]{5,20}$/;
 export const passwordRegex = /^[a-zA-Z0-9 +-/*]{5,20}$/;
 
+export const todayRegex = /^\/dashboard\/today$/;
+export const listsRegex = /^\/dashboard\/lists\/(.+)$/;
+
 export const titleCase = (data) => {
     data = data.trim();
     return data.toLowerCase().split(' ').map(function (word) {
