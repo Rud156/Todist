@@ -1,10 +1,5 @@
-import {
-    ERROR_MESSAGE,
-    BASE_URL
-} from './constants';
-import {
-    actionDisplayMessage
-} from './../actions/NotificationAction';
+import { ERROR_MESSAGE, BASE_URL } from './constants';
+import { actionDisplayMessage } from './../actions/NotificationAction';
 
 import store from './store';
 import axios from 'axios';
@@ -33,7 +28,7 @@ const handleError = (error, message) => {
     };
 };
 
-const getHeader = () => {
+const getAuthHeader = () => {
     return store.getState().user.token;
 };
 

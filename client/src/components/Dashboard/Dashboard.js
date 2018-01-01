@@ -1,11 +1,27 @@
 import React, { Component } from 'react';
+import { Route, BrowserRouter, Switch } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 class Dashboard extends Component {
+    constructor(props) {
+        super(props);
+    }
+
     render() {
         return (
-            <h1>Hello World</h1>
+            <BrowserRouter>
+                <div>
+                    <h1> Hello {this.props.user.userDetails.username} </h1>
+                </div>
+            </BrowserRouter>
         )
     }
 }
 
-export default Dashboard;
+function mapStateToProps(state) {
+    return {
+        user: state.user
+    };
+}
+
+export default connect(mapStateToProps)(Dashboard);

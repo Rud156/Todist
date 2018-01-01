@@ -14,8 +14,10 @@ export default function (state = defaultState, action) {
             let token = action.payload.token;
             let userDetails = action.payload.user;
 
-            window.localStorage.setItem('userDetails', JSON.stringify(userDetails));
-            window.localStorage.setItem('userToken', token);
+            window.localStorage.setItem('user', JSON.stringify({
+                token: token,
+                userDetails: userDetails
+            }));
 
             return {
                 token,
@@ -23,8 +25,7 @@ export default function (state = defaultState, action) {
             };
 
         case REMOVE_USER:
-            window.localStorage.removeItem('userDetails');
-            window.localStorage.removeItem('userToken');
+            window.localStorage.removeItem('user');
 
             return {
                 token: '',

@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
 import { Grid, Header, Card, Button, Form, Message } from 'semantic-ui-react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 import { usernameRegex, passwordRegex } from './../utils/constants';
 import { loginUser, registerUser } from './../utils/api';
+import { actionAddUser } from './../actions/UserAction';
+import { actionDisplayMessage } from '../actions/NotificationAction';
 
 class HomePage extends Component {
     constructor(props) {
@@ -14,7 +19,8 @@ class HomePage extends Component {
                 username: 'Rud156',
                 password: '12345'
             },
-            errorMessages: []
+            errorMessages: [],
+            loading: false
         }
 
         this.toggleLogin = this.toggleLogin.bind(this);
@@ -50,16 +56,23 @@ class HomePage extends Component {
     handleSubmit() {
         if (this.handleErrors())
             return;
+        this.setState({ loading: true });
 
         if (this.state.showLogin) {
             registerUser(this.state.user.username, this.state.user.password)
                 .then(res => {
-                    console.log(res);
+                    if (res.success)
+                        actionDisplayMessage(res.message, Date.now(), 'success');
+
+                    this.setState({ loading: false });
                 });
         } else {
             loginUser(this.state.user.username, this.state.user.password)
                 .then(res => {
-                    console.log(res);
+                    if (res.success) {
+                        this.props.addUser(res.user, res.token);
+                        this.props.history.push('/dashboard');
+                    }
                 });
         }
     }
@@ -161,7 +174,13 @@ class HomePage extends Component {
                                                 : ''
                                         }
 
-                                        <Button type='submit' fluid color='teal'>
+                                        <Button
+                                            type='submit'
+                                            fluid
+                                            color='teal'
+                                            loading={this.state.loading}
+                                            disabled={this.state.loading}
+                                        >
                                             {this.state.showLogin ? `I'm All In` : `Let's Go`}
                                         </Button>
                                     </Form>
@@ -176,4 +195,11 @@ class HomePage extends Component {
     }
 }
 
-export default HomePage;
+function matchDispatchToProps(dispatch) {
+    return bindActionCreators({
+        addUser: actionAddUser,
+        displayNotification: actionDisplayMessage
+    }, dispatch);
+}
+
+export default withRouter(connect(null, matchDispatchToProps)(HomePage));
