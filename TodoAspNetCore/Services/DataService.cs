@@ -52,7 +52,7 @@ namespace TodoAspNetCore.Services
 
         public void ConnectToDatabase()
         {
-            MongoUrl mongoUrl = new MongoUrl(mLabDB);
+            MongoUrl mongoUrl = new MongoUrl(localDB);
             _client = new MongoClient(mongoUrl);
             _database = _client.GetDatabase(databaseName);
             /* bool mongoLive = _database.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(1000);

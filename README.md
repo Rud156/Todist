@@ -6,6 +6,26 @@
 
 #### This is a work in progress.
 
+### Running it locally:
+#### Pre Requisite:
+* MongoDB needs to be up a running.
+* A DB named `asp_net_todo` needs to be created
+* Collections `todo` and `user` also needs to be created
+
+##### Open a terminal:
+```bash
+    cd TodoAspNetCore
+    dotnet run
+```
+> Server will be running on http://localhost:59821
+##### Open another Terminal:
+```bash
+    cd client
+    yarn start
+```
+> Client will be running on http://localhost:3000
+
+
 ### Api Endpoints:
 > All endpoints start with: http://asp-net-todo.azurewebsites.net/api
 ```

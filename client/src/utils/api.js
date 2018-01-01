@@ -29,7 +29,11 @@ const handleError = (error, message) => {
 };
 
 const getAuthHeader = () => {
-    return store.getState().user.token;
+    return {
+        headers: {
+            'Authorization': 'Bearer ' + store.getState().user.token
+        }
+    };
 };
 
 export const loginUser = (username, password) => {
@@ -46,6 +50,13 @@ export const registerUser = (username, password) => {
         username,
         password
     })
+        .then(response => response.data)
+        .catch(error => handleError(error, ERROR_MESSAGE));
+};
+
+export const addCategory = (name) => {
+    let header = getAuthHeader();
+    return axios.post(`${BASE_URL}/todo/add_category`, {}, header)
         .then(response => response.data)
         .catch(error => handleError(error, ERROR_MESSAGE));
 };
