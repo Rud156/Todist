@@ -28,6 +28,7 @@
 
 ### Api Endpoints:
 > All endpoints start with: http://asp-net-todo.azurewebsites.net/api or http://localhost:59821 when running locally
+<br />
 > All `todo` routes require a token which is supplied during login
 ```
     /auth/register
