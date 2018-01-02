@@ -4,11 +4,12 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { Sidebar, Segment, Menu, Icon, Header, Grid, Button } from 'semantic-ui-react';
+import { Sidebar, Segment, Menu, Icon, Header, Grid, Responsive, Button } from 'semantic-ui-react';
 
 import { titleCase } from './../../utils/constants';
 import TodoList from './TodoList';
-import { actionRemoveUser } from '../../actions/UserAction';
+import { actionRemoveUser, actionAddUser } from '../../actions/UserAction';
+import { getUserDetails } from '../../utils/api';
 
 class Dashboard extends Component {
     constructor(props) {
@@ -19,11 +20,40 @@ class Dashboard extends Component {
         };
 
         this.logoutUser = this.logoutUser.bind(this);
+        this.handleOnUpdate = this.handleOnUpdate.bind(this);
+        this.toggleSidebar = this.toggleSidebar.bind(this);
+    }
+
+    componentWillMount() {
+        getUserDetails()
+            .then(res => {
+                if (res.requireLogin)
+                    this.logoutUser();
+                else
+                    this.props.addUser(res.user, res.token);
+            });
+    }
+
+    componentDidMount() {
+        this.handleOnUpdate(null, { width: window.innerWidth });
     }
 
     logoutUser() {
         this.props.removeUser();
         this.props.history.push('/');
+    }
+
+    handleOnUpdate(event, callee) {
+        if (callee.width <= 767) {
+            this.setState({ visible: false });
+        } else {
+            this.setState({ visible: true });
+        }
+    }
+
+    toggleSidebar() {
+        let visible = this.state.visible;
+        this.setState({ visible: !visible });
     }
 
     render() {
@@ -83,18 +113,29 @@ class Dashboard extends Component {
                         }
                     </Sidebar>
                     <Sidebar.Pusher>
-                        <Segment basic>
-                            <Switch>
-                                <Route
-                                    exact
-                                    path={`${this.props.match.url}/today`}
-                                    component={TodoList}
+                        <Segment basic className='positon-relative'>
+                            <Responsive {...Responsive.onlyMobile}>
+                                <Button
+                                    circular
+                                    icon='sidebar'
+                                    size='large'
+                                    className='position-icon'
+                                    onClick={this.toggleSidebar}
                                 />
-                                <Route path={`${this.props.match.url}/lists/:id`}
-                                    component={TodoList}
-                                />
-                                <Redirect from={`${this.props.match.url}`} to={`${this.props.match.url}/today`} />
-                            </Switch>
+                            </Responsive>
+                            <Responsive onUpdate={this.handleOnUpdate}>
+                                <Switch>
+                                    <Route
+                                        exact
+                                        path={`${this.props.match.url}/today`}
+                                        component={TodoList}
+                                    />
+                                    <Route path={`${this.props.match.url}/lists/:id`}
+                                        component={TodoList}
+                                    />
+                                    <Redirect from={`${this.props.match.url}`} to={`${this.props.match.url}/today`} />
+                                </Switch>
+                            </Responsive>
                         </Segment>
                     </Sidebar.Pusher>
                 </Sidebar.Pushable>
@@ -111,7 +152,8 @@ function mapStateToProps(state) {
 
 function matchDispatchToProps(dispatch) {
     return bindActionCreators({
-        removeUser: actionRemoveUser
+        removeUser: actionRemoveUser,
+        addUser: actionAddUser
     }, dispatch);
 }
 

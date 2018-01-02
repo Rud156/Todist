@@ -7,50 +7,52 @@ namespace TodoAspNetCore.Services
 {
     public interface IDataService
     {
-        MinimalUser FormatUser(User user);
+        Task<TodoItem> AddNewTodo(NewTodo newTodo);
+
+        Task<MinimalUser> AddNewUser(NewUser newUser);
+
+        Task<TodoItem> ChangePriority(string id, int priority);
 
         Task<MinimalUser> CreateCategory(string username, string categoryName);
 
-        Task<TodoItem> AddNewTodo(NewTodo newTodo);
+        MinimalUser FormatUser(User user);
 
         Task<IEnumerable<TodoItem>> GetAllTodos(string username);
-
-        Task<TodoItem> GetTodo(string id);
 
         Task<IEnumerable<TodoItem>> GetCompletedTodos(string username);
 
         Task<IEnumerable<TodoItem>> GetInCompletedTodos(string username);
 
-        Task<IEnumerable<TodoItem>> GetTodoByPriority(string username, int priority);
+        Task<MinimalUser> GetMinimalUserByUsername(string username);
+
+        Task<TodoItem> GetTodo(string id);
 
         Task<IEnumerable<TodoItem>> GetTodoByCategory(string username, string category);
+
+        Task<IEnumerable<TodoItem>> GetTodoByPriority(string username, int priority);
 
         Task<IEnumerable<TodoItem>> GetTodosDueOnDate(string username, DateTime dateTime);
 
         Task<IEnumerable<TodoItem>> GetTodosStartingOnDate(string username, DateTime dateTime);
 
-        Task<bool> RenameCategory(string username, string category, string newCategoryName);
+        Task<MinimalUser> GetuserById(string id);
 
-        Task<TodoItem> UpdateTodo(ModifiedTodo modifiedTodo);
+        Task<User> GetUserByUsername(string username);
 
         Task<TodoItem> MarkComplete(string id);
 
         Task<TodoItem> MarkIncomplete(string id);
 
-        Task<TodoItem> ChangePriority(string id, int priority);
-
-        Task<TodoItem> RemoveTodo(string id);
+        Task<bool> RemoveCategory(string username, string category);
 
         Task<long> RemoveCompleted(string username);
 
         Task<long> RemoveCompleted(string username, string category);
 
-        Task<bool> RemoveCategory(string username, string category);
+        Task<TodoItem> RemoveTodo(string id);
 
-        Task<MinimalUser> AddNewUser(NewUser newUser);
+        Task<bool> RenameCategory(string username, string category, string newCategoryName);
 
-        Task<MinimalUser> GetuserById(string id);
-
-        Task<User> GetUserByUsername(string username);
+        Task<TodoItem> UpdateTodo(ModifiedTodo modifiedTodo);
     }
 }

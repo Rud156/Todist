@@ -2,6 +2,11 @@
     padding: 21px 0;
 }
 
+.no-padding-margin {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
 .text-center {
     text-align: center;
 }
@@ -16,6 +21,28 @@
 
 .text-left {
     text-align: left;
+}
+
+.fixed-height {
+    height: 25vh !important;
+    background: #2185d0;
+}
+
+.position-relative {
+    position: relative;
+}
+
+.position-icon {
+    background: #2185d0 !important;
+    position: absolute;
+    z-index: 100;
+    cursor: pointer;
+}
+
+.position-bottom {
+    position: absolute;
+    bottom: 0;
+    padding: 14px 0 !important;
 }
 
 .heading-font {
