@@ -9,15 +9,16 @@ const handleError = (error, message) => {
     console.log(error.response);
 
     if (error.response) {
-        if (error.response.status === 401) {
+        if (error.response.status) {
             store.dispatch(
                 actionDisplayMessage(
                     error.response.data ? error.response.data.message : 'Token Invalidated. Please login to continue',
                     Date.now(),
                     'error'));
-            return {
-                requireLogin: true
-            };
+            if (error.response.status === 401)
+                return {
+                    requireLogin: true
+                };
         }
     } else {
         store.dispatch(actionDisplayMessage(message, Date.now(), 'error'));

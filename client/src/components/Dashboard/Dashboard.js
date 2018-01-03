@@ -113,7 +113,11 @@ class Dashboard extends Component {
                         }
                     </Sidebar>
                     <Sidebar.Pusher>
-                        <Segment basic className='positon-relative'>
+                        <Segment
+                            basic
+                            className='positon-relative'
+                            style={{ width: this.state.visible ? window.innerWidth - 350 : window.innerWidth }}
+                        >
                             <Responsive {...Responsive.onlyMobile}>
                                 <Button
                                     circular

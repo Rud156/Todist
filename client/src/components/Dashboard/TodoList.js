@@ -3,9 +3,8 @@ import moment from 'moment';
 import { withRouter } from 'react-router-dom';
 
 import { todayRegex, listsRegex } from './../../utils/constants';
-import { getTodoFromCategory, getTodoDueOn, setTodoState } from '../../utils/api';
-import { Grid, Header, List, Checkbox } from 'semantic-ui-react';
-import Icon from 'semantic-ui-react/dist/commonjs/elements/Icon/Icon';
+import { getTodoFromCategory, getTodoDueOn, setTodoState, addTodo } from '../../utils/api';
+import { Grid, Header, List, Checkbox, Icon, Form } from 'semantic-ui-react';
 
 class TodoList extends Component {
     constructor(props) {
@@ -14,12 +13,18 @@ class TodoList extends Component {
         this.state = {
             todos: [],
             loading: false,
-            today: false
+            today: false,
+
+            displayForm: false,
+            todoTitle: ''
         };
 
         // There is slash at the beginning
         this.onRouteChanged = this.onRouteChanged.bind(this);
         this.logoutUser = this.logoutUser.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleTitleChange = this.handleTitleChange.bind(this);
+        this.displayNewTodoForm = this.displayNewTodoForm.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -34,7 +39,7 @@ class TodoList extends Component {
 
     onRouteChanged() {
         let currentUrl = this.props.match.url;
-        this.setState({ loading: true, todos: [] });
+        this.setState({ loading: true, todos: [], displayForm: false, todoTitle: '' });
 
         if (todayRegex.test(currentUrl)) {
             this.setState({ today: true });
@@ -88,6 +93,34 @@ class TodoList extends Component {
             });
     }
 
+    displayNewTodoForm() {
+        this.setState({ displayForm: true });
+    }
+
+    handleTitleChange(event) {
+        this.setState({ todoTitle: event.target.value });
+    }
+
+    handleSubmit() {
+        let title = this.state.todoTitle;
+        let url = this.props.match.url;
+
+        let category = todayRegex.test(url) ? 'Todo' : this.props.match.params.id;
+
+        addTodo(title, category)
+            .then(res => {
+                if (res.requireLogin)
+                    this.logoutUser();
+                else {
+                    if (res.success) {
+                        let todos = this.state.todos;
+                        todos.push(res.todoItem);
+                        this.setState({ todos: todos, displayForm: false, todoTitle: '' });
+                    }
+                }
+            });
+    }
+
     render() {
         return (
             <div className='container'>
@@ -123,8 +156,29 @@ class TodoList extends Component {
                                         )
                                     })
                                 }
+                                {
+                                    this.state.displayForm &&
+                                    <List.Item>
+                                        <List.Content>
+                                            <Form onSubmit={this.handleSubmit}>
+                                                <Form.Field className='text-left'>
+                                                    <input
+                                                        placeholder='Todo title...'
+                                                        onChange={this.handleTitleChange}
+                                                        value={this.state.todoTitle}
+                                                    />
+                                                </Form.Field>
+                                            </Form>
+                                        </List.Content>
+                                    </List.Item>
+                                }
                                 <List.Item>
-                                    <Icon name='plus' size='large' />
+                                    <Icon
+                                        name='plus'
+                                        size='large'
+                                        className='pointer-cursor'
+                                        onClick={this.displayNewTodoForm}
+                                    />
                                     <List.Content>
                                         <Header as='h4'>Add New Todo</Header>
                                     </List.Content>

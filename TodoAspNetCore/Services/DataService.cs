@@ -20,6 +20,8 @@ namespace TodoAspNetCore.Services
         private string localDB = $"mongodb://localhost:27017/{databaseName}";
         private string mLabDB = $"mongodb://rud156:1234@ds163826.mlab.com:63826/{databaseName}";
 
+        private string defaultCategoryName = "Todo";
+
         private TodoItem FormatTodoItem(TodoItem todo)
         {
             todo.Title = WebUtility.HtmlDecode(todo.Title);
@@ -85,12 +87,16 @@ namespace TodoAspNetCore.Services
                 numBytesRequested: 256 / 8
             ));
 
+            HashSet<string> categories = new HashSet<string>
+            {
+                defaultCategoryName
+            };
             var userObject = new User
             {
                 Id = ObjectId.GenerateNewId().ToString(),
                 Username = newUser.Username,
                 Password = hashedPassword,
-                Categories = new HashSet<string>(),
+                Categories = categories,
                 UserSalt = salt
             };
 
@@ -113,7 +119,7 @@ namespace TodoAspNetCore.Services
 
         public void ConnectToDatabase()
         {
-            MongoUrl mongoUrl = new MongoUrl(localDB);
+            MongoUrl mongoUrl = new MongoUrl(mLabDB);
             _client = new MongoClient(mongoUrl);
             _database = _client.GetDatabase(databaseName);
             /* bool mongoLive = _database.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(1000);
@@ -260,6 +266,9 @@ namespace TodoAspNetCore.Services
 
         public async Task<bool> RemoveCategory(string username, string category)
         {
+            if (category == defaultCategoryName)
+                return false;
+
             username = username.ToLower();
 
             var userTask = await _userCollection.FindAsync(_ => _.Username == username);
@@ -314,6 +323,9 @@ namespace TodoAspNetCore.Services
 
         public async Task<bool> RenameCategory(string username, string category, string newCategoryName)
         {
+            if (category == defaultCategoryName)
+                return false;
+
             var userTask = await _userCollection.FindAsync(_ => _.Username == username);
             var user = await userTask.SingleOrDefaultAsync();
             if (user == null || !user.Categories.Contains(category) || user.Categories.Contains(newCategoryName))

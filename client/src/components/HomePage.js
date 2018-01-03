@@ -62,7 +62,7 @@ class HomePage extends Component {
             registerUser(this.state.user.username, this.state.user.password)
                 .then(res => {
                     if (res.success)
-                        actionDisplayMessage(res.message, Date.now(), 'success');
+                        this.props.displayNotification(res.message, Date.now(), 'success');
 
                     this.setState({ loading: false });
                 });
@@ -72,6 +72,7 @@ class HomePage extends Component {
                     if (res.success) {
                         this.props.addUser(res.user, res.token);
                         this.props.history.push('/dashboard');
+                        this.props.displayNotification('Login Successful', Date.now(), 'success');
                     } else {
                         this.setState({ loading: false });
                     }
