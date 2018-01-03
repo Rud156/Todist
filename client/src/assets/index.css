@@ -59,6 +59,10 @@ a {
     color: rgba(0, 0, 0, .87);
 }
 
+.white-text {
+    color: white !important;
+}
+
 .link-active {
     background: #ededed!important;
 }

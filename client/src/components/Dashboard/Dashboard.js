@@ -4,27 +4,41 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { Sidebar, Segment, Menu, Icon, Header, Grid, Responsive, Button } from 'semantic-ui-react';
+import { Sidebar, Segment, Menu, Icon, Header, Grid, Responsive, Button, Form } from 'semantic-ui-react';
 
 import { titleCase } from './../../utils/constants';
 import TodoList from './TodoList';
 import { actionRemoveUser, actionAddUser } from '../../actions/UserAction';
-import { getUserDetails } from '../../utils/api';
+import { getUserDetails, addCategory } from '../../utils/api';
 
 class Dashboard extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            visible: true
+            visible: true,
+
+            displayForm: false,
+            categoryName: ''
         };
 
         this.logoutUser = this.logoutUser.bind(this);
         this.handleOnUpdate = this.handleOnUpdate.bind(this);
         this.toggleSidebar = this.toggleSidebar.bind(this);
+        this.toggleNewCategoryForm = this.toggleNewCategoryForm.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleCategoryNameChange = this.handleCategoryNameChange.bind(this);
     }
 
     componentWillMount() {
+        this.getUser();
+    }
+
+    componentDidMount() {
+        this.handleOnUpdate(null, { width: window.innerWidth });
+    }
+
+    getUser() {
         getUserDetails()
             .then(res => {
                 if (res.requireLogin)
@@ -32,10 +46,6 @@ class Dashboard extends Component {
                 else
                     this.props.addUser(res.user, res.token);
             });
-    }
-
-    componentDidMount() {
-        this.handleOnUpdate(null, { width: window.innerWidth });
     }
 
     logoutUser() {
@@ -54,6 +64,27 @@ class Dashboard extends Component {
     toggleSidebar() {
         let visible = this.state.visible;
         this.setState({ visible: !visible });
+    }
+
+    toggleNewCategoryForm() {
+        let display = this.state.displayForm;
+        this.setState({ displayForm: !display });
+    }
+
+    handleCategoryNameChange(event) {
+        this.setState({ categoryName: event.target.value });
+    }
+
+    handleSubmit() {
+        addCategory(this.state.categoryName)
+            .then(res => {
+                if (res.requireLogin)
+                    this.logoutUser();
+                else {
+                    this.getUser();
+                    this.setState({ displayForm: false, categoryName: '' });
+                }
+            });
     }
 
     render() {
@@ -77,12 +108,6 @@ class Dashboard extends Component {
                                     </Grid.Column>
                                 </Grid.Row>
                             </Grid>
-                        </Menu.Item>
-                        <Menu.Item name='New List'>
-                            <Header as='h3' color='blue' className='heading-font'>
-                                <Icon name='add' color='blue' />
-                                New List
-                            </Header>
                         </Menu.Item>
                         <Menu.Item
                             name='New List'
@@ -111,6 +136,29 @@ class Dashboard extends Component {
                                 );
                             })
                         }
+                        {
+                            this.state.displayForm &&
+                            <Menu.Item name='Category Form'>
+                                <Form onSubmit={this.handleSubmit}>
+                                    <Form.Field className='text-left'>
+                                        <input
+                                            placeholder='Todo title...'
+                                            onChange={this.handleCategoryNameChange}
+                                            value={this.state.categoryName}
+                                        />
+                                    </Form.Field>
+                                </Form>
+                            </Menu.Item>
+                        }
+                        <Menu.Item name='New List' onClick={this.toggleNewCategoryForm}>
+                            <Header as='h3' color='blue' className='heading-font'>
+                                <Icon
+                                    name={this.state.displayForm ? 'close' : 'add'}
+                                    color='blue'
+                                />
+                                {this.state.displayForm ? 'Close' : 'New List'}
+                            </Header>
+                        </Menu.Item>
                     </Sidebar>
                     <Sidebar.Pusher>
                         <Segment

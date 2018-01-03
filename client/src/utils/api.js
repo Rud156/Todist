@@ -63,7 +63,7 @@ export const getUserDetails = () => {
 
 export const addCategory = (name) => {
     let header = getAuthHeader();
-    return axios.post(`${BASE_URL}/todo/add_category`, {}, header)
+    return axios.post(`${BASE_URL}/todo/add_category?category=${name}`, {}, header)
         .then(response => response.data)
         .catch(error => handleError(error, ERROR_MESSAGE));
 };

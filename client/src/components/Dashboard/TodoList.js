@@ -4,7 +4,9 @@ import { withRouter } from 'react-router-dom';
 
 import { todayRegex, listsRegex } from './../../utils/constants';
 import { getTodoFromCategory, getTodoDueOn, setTodoState, addTodo } from '../../utils/api';
-import { Grid, Header, List, Checkbox, Icon, Form } from 'semantic-ui-react';
+import { Grid, Header, List, Checkbox, Icon, Form, Button } from 'semantic-ui-react';
+
+import EditableModal from './EditableModal';
 
 class TodoList extends Component {
     constructor(props) {
@@ -124,10 +126,11 @@ class TodoList extends Component {
     render() {
         return (
             <div className='container'>
+                <EditableModal />
                 <Grid columns='one'>
                     <Grid.Row className='no-padding-margin'>
                         <Grid.Column stretched className='fixed-height'>
-                            <Header as='h2' className='position-bottom'>
+                            <Header as='h2' className='position-bottom white-text'>
                                 {
                                     this.state.today ?
                                         `My Day - ${moment().format('dddd, MMMM D')}` :
@@ -138,7 +141,7 @@ class TodoList extends Component {
                         <Grid.Column stretched className='padding-top'>
                             <List divided verticalAlign='middle' relaxed>
                                 {
-                                    this.state.todos.map((element, index) => {
+                                    this.state.todos.map(element => {
                                         return (
                                             <List.Item key={element.id}>
                                                 <List.Content floated='left'>
@@ -151,6 +154,9 @@ class TodoList extends Component {
                                                 </List.Content>
                                                 <List.Content floated='left'>
                                                     <Header as='h4'>{element.title}</Header>
+                                                </List.Content>
+                                                <List.Content floated='right'>
+                                                    <Icon name='ellipsis horizontal' size='large' className='pointer-cursor' />
                                                 </List.Content>
                                             </List.Item>
                                         )
