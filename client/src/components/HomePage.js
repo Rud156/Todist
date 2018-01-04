@@ -63,6 +63,8 @@ class HomePage extends Component {
                 .then(res => {
                     if (res.success)
                         this.props.displayNotification(res.message, Date.now(), 'success');
+                    else if (res.networkDown)
+                        console.log('Network Down');
 
                     this.setState({ loading: false });
                 });
@@ -73,9 +75,11 @@ class HomePage extends Component {
                         this.props.addUser(res.user, res.token);
                         this.props.history.push('/dashboard');
                         this.props.displayNotification('Login Successful', Date.now(), 'success');
-                    } else {
-                        this.setState({ loading: false });
                     }
+                    else if (res.networkDown)
+                        console.log('Network Down');
+                    else
+                        this.setState({ loading: false });
                 });
         }
     }

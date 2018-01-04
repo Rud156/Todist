@@ -20,6 +20,11 @@ const handleError = (error, message) => {
                     requireLogin: true
                 };
         }
+    }
+    else if (!error.status) {
+        return {
+            networkDown: true
+        };
     } else {
         store.dispatch(actionDisplayMessage(message, Date.now(), 'error'));
     }
@@ -92,6 +97,13 @@ export const getTodoDueOn = (date) => {
 export const setTodoState = (todoId, finalState) => {
     let url = `${BASE_URL}/todo/${finalState ? 'complete_todo' : 'mark_incomplete_todo'}?id=${todoId}`;
     return axios.patch(url, {}, getAuthHeader())
+        .then(response => response.data)
+        .catch(error => handleError(error, ERROR_MESSAGE));
+};
+
+export const updateTodo = (id, dueDate, note, priority) => {
+    return axios.put(`${BASE_URL}/todo/update_todo`,
+        { id, dueDate, note, priority }, getAuthHeader())
         .then(response => response.data)
         .catch(error => handleError(error, ERROR_MESSAGE));
 };

@@ -41,9 +41,12 @@ class Dashboard extends Component {
     getUser() {
         getUserDetails()
             .then(res => {
+                console.log(res);
                 if (res.requireLogin)
                     this.logoutUser();
-                else
+                else if (res.networkDown) {
+                    console.log('Network Down');
+                } else
                     this.props.addUser(res.user, res.token);
             });
     }
@@ -80,6 +83,8 @@ class Dashboard extends Component {
             .then(res => {
                 if (res.requireLogin)
                     this.logoutUser();
+                else if (res.networkDown)
+                    console.log('Network Down');
                 else {
                     this.getUser();
                     this.setState({ displayForm: false, categoryName: '' });
@@ -96,7 +101,17 @@ class Dashboard extends Component {
                             <Grid columns={2} divided>
                                 <Grid.Row>
                                     <Grid.Column width='twelve' textAlign='center'>
-                                        <h3>
+                                        <Responsive
+                                            {...Responsive.onlyMobile}
+                                            style={{ display: 'inline-block', float: 'left' }}
+                                        >
+                                            <Icon
+                                                name='close'
+                                                onClick={this.toggleSidebar}
+                                                className='pointer-cursor'
+                                            />
+                                        </Responsive>
+                                        <h3 style={{ display: 'inline' }}>
                                             <Icon name='user' />
                                             {titleCase(this.props.user.userDetails.username)}
                                         </h3>

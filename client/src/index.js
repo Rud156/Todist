@@ -4,6 +4,7 @@ import Notification from './Notification';
 import registerServiceWorker from './registerServiceWorker';
 
 import { Route, BrowserRouter, Switch, Redirect } from 'react-router-dom';
+import 'react-dates/initialize';
 
 import { Provider } from 'react-redux';
 import store from './utils/store';

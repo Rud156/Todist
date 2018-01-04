@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 
 import { todayRegex, listsRegex } from './../../utils/constants';
 import { getTodoFromCategory, getTodoDueOn, setTodoState, addTodo } from '../../utils/api';
-import { Grid, Header, List, Checkbox, Icon, Form, Button } from 'semantic-ui-react';
+import { Grid, Header, List, Checkbox, Icon, Form } from 'semantic-ui-react';
 
 import EditableModal from './EditableModal';
 
@@ -18,7 +18,10 @@ class TodoList extends Component {
             today: false,
 
             displayForm: false,
-            todoTitle: ''
+            todoTitle: '',
+
+            openEditableModal: false,
+            selectedTodoObject: { title: '', priority: 0, notes: '' }
         };
 
         // There is slash at the beginning
@@ -27,6 +30,8 @@ class TodoList extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleTitleChange = this.handleTitleChange.bind(this);
         this.displayNewTodoForm = this.displayNewTodoForm.bind(this);
+        this.closeEditableModal = this.closeEditableModal.bind(this);
+        this.handleTodoSelected = this.handleTodoSelected.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -48,9 +53,11 @@ class TodoList extends Component {
 
             getTodoDueOn(moment().utc().format('YYYY-MM-DD'))
                 .then(res => {
-                    if (res.requireLogin) {
+                    if (res.requireLogin)
                         this.logoutUser();
-                    } else {
+                    else if (res.networkDown)
+                        console.log('Network Down');
+                    else {
                         this.setState({ todos: res.todos });
                         this.setState({ loading: false });
                     }
@@ -63,6 +70,8 @@ class TodoList extends Component {
                 .then(res => {
                     if (res.requireLogin)
                         this.logoutUser();
+                    else if (res.networkDown)
+                        console.log('Network Down');
                     else {
                         this.setState({ todos: res.todos });
                         this.setState({ loading: false });
@@ -84,6 +93,8 @@ class TodoList extends Component {
             .then(res => {
                 if (res.requireLogin)
                     this.logoutUser();
+                else if (res.networkDown)
+                    console.log('Network Down');
                 else {
                     let todos = this.state.todos.map(element => {
                         if (element.id === todoId)
@@ -113,6 +124,8 @@ class TodoList extends Component {
             .then(res => {
                 if (res.requireLogin)
                     this.logoutUser();
+                else if (res.networkDown)
+                    console.log('Network Down');
                 else {
                     if (res.success) {
                         let todos = this.state.todos;
@@ -123,10 +136,25 @@ class TodoList extends Component {
             });
     }
 
+    handleTodoSelected(todo) {
+        this.setState({ openEditableModal: true, selectedTodoObject: todo });
+    }
+
+    closeEditableModal() {
+        this.setState({
+            openEditableModal: false,
+            selectedTodoObject: { title: '', priority: 0, notes: '' }
+        });
+    }
+
     render() {
         return (
             <div className='container'>
-                <EditableModal />
+                <EditableModal
+                    isOpen={this.state.openEditableModal}
+                    handleClose={this.closeEditableModal}
+                    todoObject={this.state.selectedTodoObject}
+                />
                 <Grid columns='one'>
                     <Grid.Row className='no-padding-margin'>
                         <Grid.Column stretched className='fixed-height'>
@@ -156,7 +184,14 @@ class TodoList extends Component {
                                                     <Header as='h4'>{element.title}</Header>
                                                 </List.Content>
                                                 <List.Content floated='right'>
-                                                    <Icon name='ellipsis horizontal' size='large' className='pointer-cursor' />
+                                                    <Icon
+                                                        name='ellipsis horizontal'
+                                                        size='large'
+                                                        className='pointer-cursor'
+                                                        onClick={() => {
+                                                            this.handleTodoSelected(element)
+                                                        }}
+                                                    />
                                                 </List.Content>
                                             </List.Item>
                                         )

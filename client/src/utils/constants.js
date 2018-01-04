@@ -4,6 +4,7 @@ export const BASE_URL = 'http://asp-net-todo.azurewebsites.net/api';
 
 export const usernameRegex = /^[a-zA-Z0-9-]{5,20}$/;
 export const passwordRegex = /^[a-zA-Z0-9 +-/*]{5,20}$/;
+export const numberRegex = /^[0-9]*$/;
 
 export const todayRegex = /^\/dashboard\/today$/;
 export const listsRegex = /^\/dashboard\/lists\/(.+)$/;
