@@ -17,15 +17,16 @@ namespace TodoAspNetCore.Services
         private IMongoDatabase _database;
         private IMongoCollection<TodoItem> _todoCollection;
         private IMongoCollection<User> _userCollection;
+        private string defaultCategoryName = "Todo";
         private string localDB = $"mongodb://localhost:27017/{databaseName}";
         private string mLabDB = $"mongodb://rud156:1234@ds163826.mlab.com:63826/{databaseName}";
-
-        private string defaultCategoryName = "Todo";
 
         private TodoItem FormatTodoItem(TodoItem todo)
         {
             todo.Title = WebUtility.HtmlDecode(todo.Title);
             todo.Note = WebUtility.HtmlDecode(todo.Note);
+            todo.DueDate = (todo.DueDate - new DateTime(1970, 1, 1).Ticks) / TimeSpan.TicksPerSecond;
+            todo.StartDate = (todo.StartDate - new DateTime(1970, 1, 1).Ticks) / TimeSpan.TicksPerSecond;
             return todo;
         }
 
@@ -35,6 +36,8 @@ namespace TodoAspNetCore.Services
             {
                 _.Title = WebUtility.HtmlDecode(_.Title);
                 _.Note = WebUtility.HtmlDecode(_.Note);
+                _.DueDate = (_.DueDate - new DateTime(1970, 1, 1).Ticks) / TimeSpan.TicksPerSecond;
+                _.StartDate = (_.StartDate - new DateTime(1970, 1, 1).Ticks) / TimeSpan.TicksPerSecond;
                 return _;
             }).ToList();
         }

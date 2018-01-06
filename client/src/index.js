@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Notification from './Notification';
-import registerServiceWorker from './registerServiceWorker';
 
 import { Route, BrowserRouter, Switch, Redirect } from 'react-router-dom';
 import 'react-dates/initialize';

@@ -13,7 +13,7 @@ class Notification extends Component {
             this.notificationSystem.addNotification({
                 message: nextProps.notification.messages[length - 1].message,
                 level: nextProps.notification.messages[length - 1].type,
-                autoDismiss: 0
+                autoDismiss: 5
             });
         }
     }

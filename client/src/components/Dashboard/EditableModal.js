@@ -19,14 +19,22 @@ class EditableModal extends Component {
         this.state = {
             date: new Date(),
             dateDisabled: false,
-            priority: this.props.todoObject.priority,
-            notes: this.props.todoObject.notes,
+            priority: 0,
+            note: '',
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDateChange = this.handleDateChange.bind(this);
         this.handlePriorityChange = this.handlePriorityChange.bind(this);
         this.handleNoteshange = this.handleNoteshange.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            date: moment.utc(nextProps.todoObject.dueDate * 1000).toDate(),
+            priority: nextProps.todoObject.priority,
+            note: nextProps.todoObject.note
+        });
     }
 
     handleSubmit() {
@@ -36,11 +44,11 @@ class EditableModal extends Component {
 
 
         let priority = this.state.priority;
-        let notes = this.state.notes;
+        let note = this.state.note;
         let date = moment(this.state.date).utc().format('YYYY-MM-DD');
         let id = this.props.todoObject.id;
 
-        updateTodo(id, date, notes, priority)
+        updateTodo(id, date, note, priority)
             .then(res => {
                 if (res.requireLogin || res.networkDown)
                     this.props.displayNotification(
@@ -70,12 +78,12 @@ class EditableModal extends Component {
     }
 
     handleNoteshange(event) {
-        this.setState({ notes: event.target.value });
+        this.setState({ note: event.target.value });
     }
 
     render() {
         return (
-            <Modal dimmer='blurring' open={this.props.isOpen} onClose={this.props.handleClose}>
+            <Modal dimmer='blurring' open={this.props.isOpen} onClose={this.props.handleClose} size='mini'>
                 <Modal.Header>{this.props.todoObject.title}</Modal.Header>
                 <Modal.Content>
                     <Form onSubmit={this.handleSubmit}>
@@ -104,9 +112,9 @@ class EditableModal extends Component {
                         <Form.Field>
                             <label>Notes</label>
                             <textarea
-                                style={{ resize: 'none' }}
-                                value={this.state.notes}
+                                value={this.state.note}
                                 onChange={this.handleNoteshange}
+                                rows={3}
                             >
                             </textarea>
                         </Form.Field>

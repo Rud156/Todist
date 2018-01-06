@@ -17,6 +17,7 @@ class Dashboard extends Component {
 
         this.state = {
             visible: true,
+            mobileViewActive: false,
 
             displayForm: false,
             categoryName: ''
@@ -41,7 +42,6 @@ class Dashboard extends Component {
     getUser() {
         getUserDetails()
             .then(res => {
-                console.log(res);
                 if (res.requireLogin)
                     this.logoutUser();
                 else if (res.networkDown) {
@@ -58,9 +58,9 @@ class Dashboard extends Component {
 
     handleOnUpdate(event, callee) {
         if (callee.width <= 767) {
-            this.setState({ visible: false });
+            this.setState({ visible: false, mobileViewActive: true });
         } else {
-            this.setState({ visible: true });
+            this.setState({ visible: true, mobileViewActive: false });
         }
     }
 
@@ -98,29 +98,27 @@ class Dashboard extends Component {
                 <Sidebar.Pushable as={Segment}>
                     <Sidebar as={Menu} animation='push' width='wide' visible={this.state.visible} vertical>
                         <Menu.Item name='User'>
-                            <Grid columns={2} divided>
+                            <Grid columns={this.state.mobileViewActive ? 3 : 2} divided>
                                 <Grid.Row>
-                                    <Grid.Column width='twelve' textAlign='center'>
-                                        <Responsive
-                                            {...Responsive.onlyMobile}
-                                            style={{ display: 'inline-block', float: 'left' }}
-                                        >
-                                            <Icon
-                                                name='close'
-                                                onClick={this.toggleSidebar}
-                                                className='pointer-cursor'
-                                            />
-                                        </Responsive>
-                                        <h3 style={{ display: 'inline' }}>
-                                            <Icon name='user' />
-                                            {titleCase(this.props.user.userDetails.username)}
-                                        </h3>
-                                    </Grid.Column>
                                     <Grid.Column width='four' textAlign='center'>
                                         <h3 onClick={this.logoutUser} className='pointer-cursor'>
                                             <Icon name='power' />
                                         </h3>
                                     </Grid.Column>
+                                    <Grid.Column width='eight' textAlign='center'>
+                                        <h3>
+                                            <Icon name='user' />
+                                            {titleCase(this.props.user.userDetails.username)}
+                                        </h3>
+                                    </Grid.Column>
+                                    {
+                                        this.state.mobileViewActive &&
+                                        <Grid.Column width='four' textAlign='center'>
+                                            <h3 onClick={this.toggleSidebar} className='pointer-cursor'>
+                                                <Icon name='close' />
+                                            </h3>
+                                        </Grid.Column>
+                                    }
                                 </Grid.Row>
                             </Grid>
                         </Menu.Item>
