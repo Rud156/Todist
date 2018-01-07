@@ -7,7 +7,8 @@ import {
     getTodoFromCategory,
     getTodoDueOn,
     setTodoState,
-    addTodo
+    addTodo,
+    deleteTodo
 } from '../../utils/api';
 import {
     Grid,
@@ -20,21 +21,29 @@ import {
 } from 'semantic-ui-react';
 
 import EditableModal from './EditableModal';
+import DeleteModal from './DeleteModal';
 
 class TodoList extends Component {
     constructor(props) {
         super(props);
 
+        let currentUrl = props.match.url;
+        let today = todayRegex.test(currentUrl);
+        let loading =
+            todayRegex.test(currentUrl) || listsRegex.test(currentUrl);
+
         this.state = {
             todos: [],
-            loading: false,
-            today: false,
+            loading: loading,
+            today: today,
 
             displayForm: false,
             todoTitle: '',
 
             openEditableModal: false,
-            selectedTodoObject: { title: '', priority: 0, notes: '' }
+            openDeleteModal: false,
+            selectedTodoObject: { title: '', priority: 0, notes: '' },
+            deleteLoading: false
         };
 
         // There is slash at the beginning
@@ -45,6 +54,9 @@ class TodoList extends Component {
         this.displayNewTodoForm = this.displayNewTodoForm.bind(this);
         this.closeEditableModal = this.closeEditableModal.bind(this);
         this.handleTodoSelected = this.handleTodoSelected.bind(this);
+        this.potentialDeleteSelected = this.potentialDeleteSelected.bind(this);
+        this.deleteModalClosed = this.deleteModalClosed.bind(this);
+        this.handleTodoDelete = this.handleTodoDelete.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -53,22 +65,14 @@ class TodoList extends Component {
         }
     }
 
-    componentDidMount() {
+    componentWillMount() {
         this.onRouteChanged();
     }
 
     onRouteChanged() {
         let currentUrl = this.props.match.url;
-        this.setState({
-            loading: true,
-            todos: [],
-            displayForm: false,
-            todoTitle: ''
-        });
 
         if (todayRegex.test(currentUrl)) {
-            this.setState({ today: true });
-
             getTodoDueOn(
                 moment()
                     .utc()
@@ -77,23 +81,19 @@ class TodoList extends Component {
                 if (res.requireLogin) this.logoutUser();
                 else if (res.networkDown) console.log('Network Down');
                 else {
-                    this.setState({ todos: res.todos });
-                    this.setState({ loading: false });
+                    this.setState({ todos: res.todos, loading: false });
                 }
             });
         } else if (listsRegex.test(currentUrl)) {
-            this.setState({ today: false });
             let category = this.props.match.params.id;
+
             getTodoFromCategory(category).then(res => {
                 if (res.requireLogin) this.logoutUser();
                 else if (res.networkDown) console.log('Network Down');
                 else {
-                    this.setState({ todos: res.todos });
-                    this.setState({ loading: false });
+                    this.setState({ todos: res.todos, loading: false });
                 }
             });
-        } else {
-            this.setState({ loading: false, today: false });
         }
     }
 
@@ -154,10 +154,58 @@ class TodoList extends Component {
         this.setState({ openEditableModal: true, selectedTodoObject: todo });
     }
 
-    closeEditableModal() {
+    closeEditableModal(todoItem) {
+        if (!todoItem.id)
+            this.setState({
+                openEditableModal: false,
+                selectedTodoObject: { title: '', priority: 0, notes: '' }
+            });
+        else {
+            let { todos } = this.state;
+            todos = todos.map(element => {
+                if (element.id !== todoItem.id) return element;
+                else return todoItem;
+            });
+            this.setState({
+                openEditableModal: false,
+                selectedTodoObject: { title: '', priority: 0, notes: '' },
+                todos: todos
+            });
+        }
+    }
+
+    potentialDeleteSelected() {
+        this.setState({ openEditableModal: false, openDeleteModal: true });
+    }
+
+    deleteModalClosed() {
         this.setState({
-            openEditableModal: false,
+            openDeleteModal: false,
             selectedTodoObject: { title: '', priority: 0, notes: '' }
+        });
+    }
+
+    handleTodoDelete() {
+        let id = this.state.selectedTodoObject.id;
+        this.setState({ deleteLoading: true });
+
+        deleteTodo(id).then(res => {
+            if (res.requireLogin) this.logoutUser();
+            else if (res.networkDown) {
+                console.log('Network Down');
+                this.setState({ deleteLoading: false });
+            } else {
+                let { todos } = this.state;
+                todos = todos.filter(element => {
+                    return element.id !== id;
+                });
+                this.setState({
+                    openDeleteModal: false,
+                    selectedTodoObject: { title: '', priority: 0, notes: '' },
+                    deleteLoading: false,
+                    todos: todos
+                });
+            }
         });
     }
 
@@ -168,6 +216,13 @@ class TodoList extends Component {
                     isOpen={this.state.openEditableModal}
                     handleClose={this.closeEditableModal}
                     todoObject={this.state.selectedTodoObject}
+                    potentialDeleteSelected={this.potentialDeleteSelected}
+                />
+                <DeleteModal
+                    open={this.state.openDeleteModal}
+                    handleDelete={this.handleTodoDelete}
+                    handleClose={this.deleteModalClosed}
+                    loading={this.state.deleteLoading}
                 />
                 <Grid columns="one">
                     <Grid.Row className="no-padding-margin">
@@ -183,11 +238,11 @@ class TodoList extends Component {
                                     : this.props.match.params.id}
                                 <Button
                                     icon="ellipsis horizontal"
-                                    className="float-right"
                                     circular
                                     style={{
                                         marginRight: '35px',
-                                        background: 'transparent'
+                                        background: 'transparent',
+                                        float: 'right'
                                     }}
                                 />
                             </Header>

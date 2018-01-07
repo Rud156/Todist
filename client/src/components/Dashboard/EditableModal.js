@@ -21,6 +21,7 @@ class EditableModal extends Component {
             dateDisabled: false,
             priority: 0,
             note: '',
+            loading: false
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -42,26 +43,33 @@ class EditableModal extends Component {
             return;
         }
 
-
         let priority = this.state.priority;
         let note = this.state.note;
-        let date = moment(this.state.date).utc().format('YYYY-MM-DD');
+        let date = moment(this.state.date)
+            .utc()
+            .format('YYYY-MM-DD');
         let id = this.props.todoObject.id;
 
-        updateTodo(id, date, note, priority)
-            .then(res => {
-                if (res.requireLogin || res.networkDown)
-                    this.props.displayNotification(
-                        'Unable to process request. Please try again later',
-                        Date.now(),
-                        'error'
-                    );
-                else {
-                    this.props.displayNotification('Todo Updated', Date.now(), 'success');
-                    this.props.handleClose();
-                }
-            });
+        this.setState({ loading: true });
 
+        updateTodo(id, date, note, priority).then(res => {
+            if (res.requireLogin || res.networkDown)
+                this.props.displayNotification(
+                    'Unable to process request. Please try again later',
+                    Date.now(),
+                    'error'
+                );
+            else {
+                this.props.displayNotification(
+                    'Todo Updated',
+                    Date.now(),
+                    'success'
+                );
+                this.props.handleClose(res.todoItem);
+            }
+
+            this.setState({ loading: false });
+        });
     }
 
     handleDateChange(date, modifiers) {
@@ -73,8 +81,7 @@ class EditableModal extends Component {
 
     handlePriorityChange(event) {
         let value = event.target.value;
-        if (numberRegex.test(value))
-            this.setState({ priority: value });
+        if (numberRegex.test(value)) this.setState({ priority: value });
     }
 
     handleNoteshange(event) {
@@ -83,7 +90,12 @@ class EditableModal extends Component {
 
     render() {
         return (
-            <Modal dimmer='blurring' open={this.props.isOpen} onClose={this.props.handleClose} size='mini'>
+            <Modal
+                dimmer="blurring"
+                open={this.props.isOpen}
+                onClose={this.props.handleClose}
+                size="mini"
+            >
                 <Modal.Header>{this.props.todoObject.title}</Modal.Header>
                 <Modal.Content>
                     <Form onSubmit={this.handleSubmit}>
@@ -104,7 +116,7 @@ class EditableModal extends Component {
                         <Form.Field>
                             <label>Priority</label>
                             <input
-                                type='number'
+                                type="number"
                                 value={this.state.priority}
                                 onChange={this.handlePriorityChange}
                             />
@@ -115,24 +127,26 @@ class EditableModal extends Component {
                                 value={this.state.note}
                                 onChange={this.handleNoteshange}
                                 rows={3}
-                            >
-                            </textarea>
+                            />
                         </Form.Field>
                         <Button
-                            type='submit'
+                            type="submit"
                             fluid
-                            color='blue'
+                            color="blue"
+                            loading={this.state.loading}
+                            disabled={this.state.loading}
                         >
                             Update Todo
                         </Button>
                     </Form>
                     <Button
                         fluid
-                        color='red'
-                        className='margin-top'
+                        color="red"
+                        className="margin-top"
+                        onClick={this.props.potentialDeleteSelected}
                     >
                         Delete Todo
-                        </Button>
+                    </Button>
                 </Modal.Content>
             </Modal>
         );
@@ -142,13 +156,17 @@ class EditableModal extends Component {
 EditableModal.propTypes = {
     isOpen: PropTypes.bool.isRequired,
     handleClose: PropTypes.func.isRequired,
-    todoObject: PropTypes.object.isRequired
+    todoObject: PropTypes.object.isRequired,
+    potentialDeleteSelected: PropTypes.func.isRequired
 };
 
 function matchDispatchToProps(dispatch) {
-    return bindActionCreators({
-        displayNotification: actionDisplayMessage
-    }, dispatch);
+    return bindActionCreators(
+        {
+            displayNotification: actionDisplayMessage
+        },
+        dispatch
+    );
 }
 
 export default connect(null, matchDispatchToProps)(EditableModal);

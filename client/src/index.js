@@ -15,6 +15,8 @@ import Dashboard from './components/Dashboard/Dashboard';
 
 import 'semantic-ui-css/semantic.min.css';
 import './assets/index.css';
+import './assets/transition.css';
+import TransitionHOC from './components/TransitionHOC';
 
 const userIsLoggedIn = () => {
     if (window.localStorage.getItem('user') != null) {
@@ -33,13 +35,21 @@ ReactDOM.render(
             <div>
                 <Notification />
                 <Switch>
-                    <Route exact path='/' render={() => {
-                        return userIsLoggedIn() ?
-                            (<Redirect to='/dashboard' />)
-                            :
-                            (<Homepage />)
-                    }} />
-                    <PrivateRoute path='/dashboard' component={Dashboard} />
+                    <Route
+                        exact
+                        path="/"
+                        render={() => {
+                            return userIsLoggedIn() ? (
+                                <Redirect to="/dashboard" />
+                            ) : (
+                                <Homepage />
+                            );
+                        }}
+                    />
+                    <PrivateRoute
+                        path="/dashboard"
+                        component={TransitionHOC(Dashboard)}
+                    />
                 </Switch>
             </div>
         </BrowserRouter>
