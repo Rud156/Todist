@@ -1,11 +1,20 @@
 import React from 'react';
 import { Modal, Button, Header } from 'semantic-ui-react';
 
-const DeleteModal = ({ open, handleDelete, handleClose, loading }) => {
+const DeleteModal = ({
+    open,
+    handleDelete,
+    handleClose,
+    loading,
+    categorySelected
+}) => {
     return (
         <Modal dimmer="blurring" open={open} onClose={handleClose} size="tiny">
             <Modal.Content>
-                <Header>Do you really want to remove tis Todo?</Header>
+                <Header>
+                    Do you really want to remove this{' '}
+                    {categorySelected ? 'List' : 'Todo'}?
+                </Header>
             </Modal.Content>
             <Modal.Actions>
                 <Button

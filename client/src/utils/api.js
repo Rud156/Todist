@@ -143,3 +143,13 @@ export const updateTodo = (id, dueDate, note, priority) => {
         .then(response => response.data)
         .catch(error => handleError(error, ERROR_MESSAGE));
 };
+
+export const deleteCategory = categoryName => {
+    return axios
+        .delete(
+            `${BASE_URL}/todo/category?category=${categoryName}`,
+            getAuthHeader()
+        )
+        .then(response => response.data)
+        .catch(error => handleError(error, ERROR_MESSAGE));
+};

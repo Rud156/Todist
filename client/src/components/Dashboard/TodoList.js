@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import { todayRegex, listsRegex } from './../../utils/constants';
 import {
@@ -8,7 +10,8 @@ import {
     getTodoDueOn,
     setTodoState,
     addTodo,
-    deleteTodo
+    deleteTodo,
+    deleteCategory
 } from '../../utils/api';
 import {
     Grid,
@@ -17,11 +20,12 @@ import {
     Checkbox,
     Icon,
     Form,
-    Button
+    Dropdown
 } from 'semantic-ui-react';
 
 import EditableModal from './EditableModal';
 import DeleteModal from './DeleteModal';
+import { actionRemoveCategory } from '../../actions/UserAction';
 
 class TodoList extends Component {
     constructor(props) {
@@ -43,7 +47,33 @@ class TodoList extends Component {
             openEditableModal: false,
             openDeleteModal: false,
             selectedTodoObject: { title: '', priority: 0, notes: '' },
-            deleteLoading: false
+            deleteLoading: false,
+            deleteCategorySelected: false,
+
+            dropDownOptions: [
+                { key: 1, text: 'Sort Due Date', value: 0, icon: 'clock' },
+                { key: 2, text: 'Sort Start Date', value: 1, icon: 'calendar' },
+                {
+                    key: 3,
+                    text: 'Sort Alphabetically',
+                    value: 2,
+                    icon: 'sort alphabet ascending'
+                },
+                {
+                    key: 4,
+                    text: 'Sort Completed',
+                    value: 3,
+                    icon: 'sort content ascending'
+                },
+                { key: 5, text: 'Sort Added To My Day', value: 4, icon: 'sun' },
+                {
+                    key: 6,
+                    text: 'Toggle Completed',
+                    value: 5,
+                    icon: 'check square'
+                },
+                { key: 7, text: 'Delete List', value: 6, icon: 'trash' }
+            ]
         };
 
         // There is slash at the beginning
@@ -57,6 +87,9 @@ class TodoList extends Component {
         this.potentialDeleteSelected = this.potentialDeleteSelected.bind(this);
         this.deleteModalClosed = this.deleteModalClosed.bind(this);
         this.handleTodoDelete = this.handleTodoDelete.bind(this);
+        this.handleDropDownChange = this.handleDropDownChange.bind(this);
+        this.deleteList = this.deleteList.bind(this);
+        this.deleteManager = this.deleteManager.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -185,7 +218,8 @@ class TodoList extends Component {
     deleteModalClosed() {
         this.setState({
             openDeleteModal: false,
-            selectedTodoObject: { title: '', priority: 0, notes: '' }
+            selectedTodoObject: { title: '', priority: 0, notes: '' },
+            openDeleteListModal: false
         });
     }
 
@@ -213,6 +247,57 @@ class TodoList extends Component {
         });
     }
 
+    deleteList() {
+        let categoryName = this.props.match.params.id;
+        this.setState({ deleteLoading: true });
+
+        deleteCategory(categoryName).then(res => {
+            if (res.requireLogin) this.logoutUser();
+            else if (res.networkDown || res.error) {
+                console.log('Network Down');
+                this.setState({ deleteLoading: false });
+            } else {
+                this.setState({
+                    deleteLoading: false,
+                    openDeleteModal: false,
+                    deleteCategorySelected: false
+                });
+                this.props.removeCategory(categoryName);
+                this.props.history.push('/dashboard/today');
+            }
+        });
+    }
+
+    deleteManager() {
+        if (this.state.deleteCategorySelected) this.deleteList();
+        else this.handleTodoDelete();
+    }
+
+    handleDropDownChange(event, { value }) {
+        switch (value) {
+            case 0:
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                this.setState({
+                    deleteCategorySelected: true,
+                    openDeleteModal: true
+                });
+                break;
+            default:
+                break;
+        }
+    }
+
     render() {
         return (
             <div className="container">
@@ -224,10 +309,17 @@ class TodoList extends Component {
                 />
                 <DeleteModal
                     open={this.state.openDeleteModal}
-                    handleDelete={this.handleTodoDelete}
+                    handleDelete={this.deleteManager}
                     handleClose={this.deleteModalClosed}
                     loading={this.state.deleteLoading}
+                    categorySelected={this.state.deleteCategorySelected}
                 />
+                {/* <DeleteListModal
+                    open={this.state.openDeleteListModal}
+                    handleDelete={this.deleteList}
+                    handleClose={this.deleteModalClosed}
+                    loading={this.state.deleteLoading}
+                /> */}
                 <Grid columns="one">
                     <Grid.Row className="no-padding-margin">
                         <Grid.Column stretched className="fixed-height">
@@ -240,15 +332,18 @@ class TodoList extends Component {
                                           'dddd, MMMM D'
                                       )}`
                                     : this.props.match.params.id}
-                                <Button
-                                    icon="ellipsis horizontal"
-                                    circular
-                                    style={{
-                                        marginRight: '35px',
-                                        background: 'transparent',
-                                        float: 'right'
-                                    }}
-                                />
+
+                                {!this.state.today && (
+                                    <Dropdown
+                                        inline
+                                        onChange={this.handleDropDownChange}
+                                        options={this.state.dropDownOptions}
+                                        trigger={<span />}
+                                        style={{
+                                            float: 'right'
+                                        }}
+                                    />
+                                )}
                             </Header>
                         </Grid.Column>
                         <Grid.Column stretched className="padding-top">
@@ -327,4 +422,13 @@ class TodoList extends Component {
     }
 }
 
-export default withRouter(TodoList);
+function matchDispatchToProps(dispatch) {
+    return bindActionCreators(
+        {
+            removeCategory: actionRemoveCategory
+        },
+        dispatch
+    );
+}
+
+export default withRouter(connect(null, matchDispatchToProps)(TodoList));

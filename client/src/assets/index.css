@@ -2,6 +2,10 @@
     padding: 21px 0;
 }
 
+.padding-right {
+    padding-right: 35px !important;
+}
+
 .margin-top {
     margin: 14px 0 !important;
 }
@@ -50,7 +54,7 @@
 .position-bottom {
     position: absolute;
     bottom: 0;
-    padding: 14px 0 !important;
+    padding: 14px 35px 14px 0 !important;
 }
 
 .heading-font {
@@ -89,6 +93,11 @@ a {
 
 .notification {
     z-index: 99999;
+}
+
+.ui.dropdown .menu {
+    right: 0;
+    left: auto;
 }
 
 @media (max-width: 767px) {
