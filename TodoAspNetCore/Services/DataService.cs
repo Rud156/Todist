@@ -62,9 +62,9 @@ namespace TodoAspNetCore.Services
                 Category = newTodo.Category,
                 Username = newTodo.Username,
                 Completed = false,
-                StartDate = DateTime.UtcNow.Date.Ticks,
+                StartDate = DateTime.UtcNow.Ticks,
                 Priority = 1,
-                DueDate = DateTime.UtcNow.Date.Ticks,
+                DueDate = DateTime.UtcNow.Ticks,
                 Note = ""
             };
 
@@ -220,7 +220,11 @@ namespace TodoAspNetCore.Services
         public async Task<IEnumerable<TodoItem>> GetTodosDueOnDate(string username, DateTime dateTime)
         {
             username = username.ToLower();
-            var task = await _todoCollection.FindAsync(_ => _.Username == username && _.DueDate == dateTime.Ticks);
+            var task = await _todoCollection.FindAsync(
+                _ => _.Username == username &&
+                _.DueDate >= dateTime.Date.Ticks &&
+                _.DueDate <= dateTime.Date.AddTicks(-1).AddDays(1).Ticks
+                );
             List<TodoItem> todoList = await task.ToListAsync();
             return FormatTodoList(todoList);
         }
@@ -228,7 +232,11 @@ namespace TodoAspNetCore.Services
         public async Task<IEnumerable<TodoItem>> GetTodosStartingOnDate(string username, DateTime dateTime)
         {
             username = username.ToLower();
-            var task = await _todoCollection.FindAsync(_ => _.Username == username && _.StartDate == dateTime.Ticks);
+            var task = await _todoCollection.FindAsync(
+                _ => _.Username == username &&
+                _.StartDate >= dateTime.Date.Ticks &&
+                _.StartDate <= dateTime.Date.AddTicks(-1).AddDays(1).Ticks
+                );
             List<TodoItem> todoList = await task.ToListAsync();
             return FormatTodoList(todoList);
         }
@@ -355,7 +363,7 @@ namespace TodoAspNetCore.Services
             if (todoItem == null)
                 return null;
 
-            todoItem.DueDate = modifiedTodo.DueDate.Date.Ticks;
+            todoItem.DueDate = modifiedTodo.DueDate.Ticks;
             todoItem.Note = WebUtility.HtmlEncode(modifiedTodo.Note);
             todoItem.Priority = modifiedTodo.Priority;
 

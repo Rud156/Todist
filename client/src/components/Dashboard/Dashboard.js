@@ -31,8 +31,6 @@ class Dashboard extends Component {
     constructor(props) {
         super(props);
 
-        console.log(props);
-
         this.state = {
             visible: true,
             mobileViewActive: false,
@@ -62,7 +60,7 @@ class Dashboard extends Component {
     getUser() {
         getUserDetails().then(res => {
             if (res.requireLogin) this.logoutUser();
-            else if (res.networkDown) {
+            else if (res.networkDown || res.error) {
                 console.log('Network Down');
             } else this.props.addUser(res.user, res.token);
         });
@@ -98,7 +96,7 @@ class Dashboard extends Component {
     handleSubmit() {
         addCategory(this.state.categoryName).then(res => {
             if (res.requireLogin) this.logoutUser();
-            else if (res.networkDown) console.log('Network Down');
+            else if (res.networkDown || res.error) console.log('Network Down');
             else {
                 this.getUser();
                 this.setState({ displayForm: false, categoryName: '' });

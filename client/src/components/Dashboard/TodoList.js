@@ -61,6 +61,12 @@ class TodoList extends Component {
 
     componentDidUpdate(prevProps) {
         if (this.props.match.url !== prevProps.match.url) {
+            let currentUrl = this.props.match.url;
+            let today = todayRegex.test(currentUrl);
+            let loading =
+                todayRegex.test(currentUrl) || listsRegex.test(currentUrl);
+
+            this.setState({ today: today, loading: loading, todos: [] });
             this.onRouteChanged();
         }
     }
@@ -73,13 +79,10 @@ class TodoList extends Component {
         let currentUrl = this.props.match.url;
 
         if (todayRegex.test(currentUrl)) {
-            getTodoDueOn(
-                moment()
-                    .utc()
-                    .format('YYYY-MM-DD')
-            ).then(res => {
+            getTodoDueOn(moment().utc()).then(res => {
                 if (res.requireLogin) this.logoutUser();
-                else if (res.networkDown) console.log('Network Down');
+                else if (res.networkDown || res.error)
+                    console.log('Network Down');
                 else {
                     this.setState({ todos: res.todos, loading: false });
                 }
@@ -89,7 +92,8 @@ class TodoList extends Component {
 
             getTodoFromCategory(category).then(res => {
                 if (res.requireLogin) this.logoutUser();
-                else if (res.networkDown) console.log('Network Down');
+                else if (res.networkDown || res.error)
+                    console.log('Network Down');
                 else {
                     this.setState({ todos: res.todos, loading: false });
                 }
@@ -105,7 +109,7 @@ class TodoList extends Component {
     handleCheckboxChange(todoId, currentState) {
         setTodoState(todoId, !currentState).then(res => {
             if (res.requireLogin) this.logoutUser();
-            else if (res.networkDown) console.log('Network Down');
+            else if (res.networkDown || res.error) console.log('Network Down');
             else {
                 let todos = this.state.todos.map(element => {
                     if (element.id === todoId)
@@ -135,7 +139,7 @@ class TodoList extends Component {
 
         addTodo(title, category).then(res => {
             if (res.requireLogin) this.logoutUser();
-            else if (res.networkDown) console.log('Network Down');
+            else if (res.networkDown || res.error) console.log('Network Down');
             else {
                 if (res.success) {
                     let todos = this.state.todos;
@@ -191,7 +195,7 @@ class TodoList extends Component {
 
         deleteTodo(id).then(res => {
             if (res.requireLogin) this.logoutUser();
-            else if (res.networkDown) {
+            else if (res.networkDown || res.error) {
                 console.log('Network Down');
                 this.setState({ deleteLoading: false });
             } else {

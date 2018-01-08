@@ -40,7 +40,8 @@ const handleError = (error, message) => {
     }
 
     return {
-        requireLogin: false
+        requireLogin: false,
+        error: true
     };
 };
 
