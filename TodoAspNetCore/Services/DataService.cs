@@ -17,7 +17,7 @@ namespace TodoAspNetCore.Services
         private IMongoDatabase _database;
         private IMongoCollection<TodoItem> _todoCollection;
         private IMongoCollection<User> _userCollection;
-        private string defaultCategoryName = "Todo";
+        // private string defaultCategoryName = "Todo";
         private string localDB = $"mongodb://localhost:27017/{databaseName}";
         private string mLabDB = $"mongodb://rud156:1234@ds163826.mlab.com:63826/{databaseName}";
 
@@ -92,7 +92,7 @@ namespace TodoAspNetCore.Services
 
             HashSet<string> categories = new HashSet<string>
             {
-                defaultCategoryName
+                Constants.defaultCategoryName
             };
             var userObject = new User
             {
@@ -122,7 +122,7 @@ namespace TodoAspNetCore.Services
 
         public void ConnectToDatabase()
         {
-            MongoUrl mongoUrl = new MongoUrl(mLabDB);
+            MongoUrl mongoUrl = new MongoUrl(localDB);
             _client = new MongoClient(mongoUrl);
             _database = _client.GetDatabase(databaseName);
             /* bool mongoLive = _database.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(1000);
@@ -277,7 +277,7 @@ namespace TodoAspNetCore.Services
 
         public async Task<bool> RemoveCategory(string username, string category)
         {
-            if (category == defaultCategoryName)
+            if (category == Constants.defaultCategoryName)
                 return false;
 
             username = username.ToLower();
@@ -334,7 +334,7 @@ namespace TodoAspNetCore.Services
 
         public async Task<bool> RenameCategory(string username, string category, string newCategoryName)
         {
-            if (category == defaultCategoryName)
+            if (category == Constants.defaultCategoryName)
                 return false;
 
             var userTask = await _userCollection.FindAsync(_ => _.Username == username);

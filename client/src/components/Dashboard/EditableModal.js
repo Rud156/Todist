@@ -27,7 +27,7 @@ class EditableModal extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDateChange = this.handleDateChange.bind(this);
         this.handlePriorityChange = this.handlePriorityChange.bind(this);
-        this.handleNoteshange = this.handleNoteshange.bind(this);
+        this.handleNotesChange = this.handleNotesChange.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -84,7 +84,7 @@ class EditableModal extends Component {
         if (numberRegex.test(value)) this.setState({ priority: value });
     }
 
-    handleNoteshange(event) {
+    handleNotesChange(event) {
         this.setState({ note: event.target.value });
     }
 
@@ -125,7 +125,7 @@ class EditableModal extends Component {
                             <label>Notes</label>
                             <textarea
                                 value={this.state.note}
-                                onChange={this.handleNoteshange}
+                                onChange={this.handleNotesChange}
                                 rows={3}
                             />
                         </Form.Field>

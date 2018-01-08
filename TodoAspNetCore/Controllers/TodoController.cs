@@ -310,7 +310,7 @@ namespace TodoAspNetCore.Controllers
                 return Ok(new
                 {
                     success = true,
-                    message = "Todo marked as incpmplete",
+                    message = "Todo marked as incomplete",
                     todoItem
                 });
         }
@@ -320,6 +320,13 @@ namespace TodoAspNetCore.Controllers
         public async Task<object> RemoveCategory([FromQuery]string category)
         {
             string username = GetUsername(HttpContext);
+            if (category == Constants.defaultCategoryName)
+                return BadRequest(new DeafultMessage
+                {
+                    success = false,
+                    message = "Unable to delete default category"
+                });
+
             var success = await _dataService.RemoveCategory(username, category);
             return Ok(new DeafultMessage
             {

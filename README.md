@@ -17,7 +17,7 @@
     cd TodoAspNetCore
     dotnet run
 ```
-> Server will be running on http://localhost:59821
+> Server will be running on http://localhost:5000
 ##### Open another Terminal:
 ```bash
     cd client
@@ -70,13 +70,13 @@
 ```
     /todo/starting?datetime=<date>
     GET
-    date: ISO Date string
+    date: Unix timestamp in milliseconds
 ```
 
 ```
     /todo/due?datetime=<date>
     GET
-    date: ISO Date string
+    date: Unix timestamp in milliseconds
 ```
 
 ```
