@@ -49,7 +49,6 @@ export default function(state = defaultState, action) {
                     categories: categories
                 }
             };
-            window.localStorage.removeItem('user');
             window.localStorage.setItem('user', JSON.stringify(finalState));
             return finalState;
 

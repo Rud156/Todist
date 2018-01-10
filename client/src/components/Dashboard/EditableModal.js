@@ -45,14 +45,18 @@ class EditableModal extends Component {
 
         let priority = this.state.priority;
         let note = this.state.note;
-        let date = moment(this.state.date)
-            .utc()
-            .format('YYYY-MM-DD');
+
+        let date = this.state.date;
+        let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth();
+        let days = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+        let year = date.getFullYear();
+        let formattedDate = moment(`${year}-${month}-${days}`).utc().format();
+
         let id = this.props.todoObject.id;
 
         this.setState({ loading: true });
 
-        updateTodo(id, date, note, priority).then(res => {
+        updateTodo(id, formattedDate, note, priority).then(res => {
             if (res.requireLogin || res.networkDown)
                 this.props.displayNotification(
                     'Unable to process request. Please try again later',

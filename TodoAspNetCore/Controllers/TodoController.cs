@@ -324,7 +324,7 @@ namespace TodoAspNetCore.Controllers
                 return BadRequest(new DeafultMessage
                 {
                     success = false,
-                    message = "Unable to delete default category"
+                    message = "Unable to delete Todo category"
                 });
 
             var success = await _dataService.RemoveCategory(username, category);

@@ -17,7 +17,6 @@ namespace TodoAspNetCore.Services
         private IMongoDatabase _database;
         private IMongoCollection<TodoItem> _todoCollection;
         private IMongoCollection<User> _userCollection;
-        // private string defaultCategoryName = "Todo";
         private string localDB = $"mongodb://localhost:27017/{databaseName}";
         private string mLabDB = $"mongodb://rud156:1234@ds163826.mlab.com:63826/{databaseName}";
 
@@ -122,7 +121,7 @@ namespace TodoAspNetCore.Services
 
         public void ConnectToDatabase()
         {
-            MongoUrl mongoUrl = new MongoUrl(localDB);
+            MongoUrl mongoUrl = new MongoUrl(mLabDB);
             _client = new MongoClient(mongoUrl);
             _database = _client.GetDatabase(databaseName);
             /* bool mongoLive = _database.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(1000);
