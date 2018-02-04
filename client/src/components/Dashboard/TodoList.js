@@ -7,11 +7,11 @@ import { bindActionCreators } from 'redux';
 import { todayRegex, listsRegex } from './../../utils/constants';
 import {
     getTodoFromCategory,
-    getTodoDueOn,
     setTodoState,
     addTodo,
     deleteTodo,
-    deleteCategory
+    deleteCategory,
+    getTodosDueTillNow
 } from '../../utils/api';
 import {
     Grid,
@@ -41,7 +41,7 @@ class TodoList extends Component {
             loading: loading,
             today: today,
 
-            displayCompleted: true,
+            displayCompleted: false,
 
             displayForm: false,
             todoTitle: '',
@@ -52,7 +52,7 @@ class TodoList extends Component {
             deleteLoading: false,
             deleteCategorySelected: false,
 
-            dropDownOptions: [
+            sortDropDownOptions: [
                 { key: 1, text: 'Sort Due Date', value: 0, icon: 'clock' },
                 { key: 2, text: 'Sort Start Date', value: 1, icon: 'calendar' },
                 {
@@ -67,14 +67,17 @@ class TodoList extends Component {
                     value: 3,
                     icon: 'sort content ascending'
                 },
-                { key: 5, text: 'Sort Added To My Day', value: 4, icon: 'sun' },
+                { key: 5, text: 'Sort Added To My Day', value: 4, icon: 'sun' }
+            ],
+
+            optionsDropDownOptions: [
                 {
-                    key: 6,
+                    key: 1,
                     text: 'Toggle Completed',
-                    value: 5,
+                    value: 0,
                     icon: 'check square'
                 },
-                { key: 7, text: 'Delete List', value: 6, icon: 'trash' }
+                { key: 2, text: 'Delete List', value: 1, icon: 'trash' }
             ]
         };
 
@@ -89,9 +92,16 @@ class TodoList extends Component {
         this.potentialDeleteSelected = this.potentialDeleteSelected.bind(this);
         this.deleteModalClosed = this.deleteModalClosed.bind(this);
         this.handleTodoDelete = this.handleTodoDelete.bind(this);
-        this.handleDropDownChange = this.handleDropDownChange.bind(this);
         this.deleteList = this.deleteList.bind(this);
         this.deleteManager = this.deleteManager.bind(this);
+        this.sortTrigger = this.sortTrigger.bind(this);
+        this.optionsTrigger = this.optionsTrigger.bind(this);
+        this.handleSortDropDownChange = this.handleSortDropDownChange.bind(
+            this
+        );
+        this.handleOptionsDropDownChange = this.handleOptionsDropDownChange.bind(
+            this
+        );
     }
 
     componentDidUpdate(prevProps) {
@@ -111,10 +121,11 @@ class TodoList extends Component {
     }
 
     onRouteChanged() {
+        this.setState({ displayCompleted: false });
         let currentUrl = this.props.match.url;
 
         if (todayRegex.test(currentUrl)) {
-            getTodoDueOn(moment().utc()).then(res => {
+            getTodosDueTillNow(moment().utc()).then(res => {
                 if (res.requireLogin) this.logoutUser();
                 else if (res.networkDown || res.error)
                     console.log('Network Down');
@@ -281,7 +292,7 @@ class TodoList extends Component {
         else this.handleTodoDelete();
     }
 
-    handleDropDownChange(event, { value }) {
+    handleSortDropDownChange(event, { value }) {
         switch (value) {
             case 0:
                 // Sort Due Date
@@ -289,7 +300,7 @@ class TodoList extends Component {
                     (a, b) =>
                         new Date(a.dueDate * 1000) - new Date(b.dueDate * 1000)
                 );
-                this.setState({ todos: dueTodos, displayCompleted: true });
+                this.setState({ todos: dueTodos });
                 break;
             case 1:
                 // Sort Start Date
@@ -298,14 +309,14 @@ class TodoList extends Component {
                         new Date(a.startDate * 1000) -
                         new Date(b.startDate * 1000)
                 );
-                this.setState({ todos: startTodos, displayCompleted: true });
+                this.setState({ todos: startTodos });
                 break;
             case 2:
                 // Sort Alphabetically
                 let alphaTodos = this.state.todos.sort((a, b) =>
                     a.title.localeCompare(b.title)
                 );
-                this.setState({ todos: alphaTodos, displayCompleted: true });
+                this.setState({ todos: alphaTodos });
                 break;
             case 3:
                 // Sort Completed
@@ -323,31 +334,26 @@ class TodoList extends Component {
                 let dayTodos = this.state.todos.sort((a, b) => {
                     let date_1 = moment(a.dueDate * 1000);
                     let date_2 = moment(b.dueDate * 1000);
-                    let today = moment();
 
-                    if (
-                        date_1.isAfter(today.subtract(1, 'day')) &&
-                        date_1.isBefore(today.add(1, 'day'))
-                    )
-                        return 1;
-
-                    if (
-                        date_2.isAfter(today.subtract(1, 'day')) &&
-                        date_2.isBefore(today.add(1, 'day'))
-                    )
-                        return 1;
-
-                    if (date_1 === date_2) return -1;
+                    if (date_1.isBefore(date_2) && !a.completed) return 1;
+                    if (date_2.isBefore(date_1) && !b.completed) return -1;
                     else return 0;
                 });
-                this.setState({ todos: dayTodos });
+                this.setState({ todos: dayTodos, displayCompleted: false });
                 break;
-            case 5:
+            default:
+                break;
+        }
+    }
+
+    handleOptionsDropDownChange(event, { value }) {
+        switch (value) {
+            case 0:
                 // Toggle Completed
                 let completed = this.state.displayCompleted;
                 this.setState({ displayCompleted: !completed });
                 break;
-            case 6:
+            case 1:
                 // Delete List
                 this.setState({
                     deleteCategorySelected: true,
@@ -358,6 +364,27 @@ class TodoList extends Component {
             default:
                 break;
         }
+    }
+
+    sortTrigger() {
+        return (
+            <span className="options-button">
+                <Icon size="small" name="filter" />
+                <span style={{ fontSize: '0.7em' }}>Sort</span>
+            </span>
+        );
+    }
+
+    optionsTrigger() {
+        return (
+            <span className="options-button">
+                <Icon
+                    name="ellipsis horizontal"
+                    size="small"
+                    style={{ marginRight: 0 }}
+                />
+            </span>
+        );
     }
 
     render() {
@@ -391,13 +418,26 @@ class TodoList extends Component {
 
                                 {!this.state.today && (
                                     <Dropdown
-                                        inline
-                                        onChange={this.handleDropDownChange}
-                                        options={this.state.dropDownOptions}
-                                        trigger={<span />}
-                                        style={{
-                                            float: 'right'
-                                        }}
+                                        onChange={
+                                            this.handleOptionsDropDownChange
+                                        }
+                                        options={
+                                            this.state.optionsDropDownOptions
+                                        }
+                                        trigger={this.optionsTrigger()}
+                                        icon={null}
+                                        className="align-screen"
+                                        header="List Options"
+                                    />
+                                )}
+                                {!this.state.today && (
+                                    <Dropdown
+                                        trigger={this.sortTrigger()}
+                                        onChange={this.handleSortDropDownChange}
+                                        options={this.state.sortDropDownOptions}
+                                        icon={null}
+                                        className="align-screen"
+                                        header="Sort"
                                     />
                                 )}
                             </Header>

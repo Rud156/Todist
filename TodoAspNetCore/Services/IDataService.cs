@@ -35,6 +35,8 @@ namespace TodoAspNetCore.Services
 
         Task<IEnumerable<TodoItem>> GetTodosStartingOnDate(string username, DateTime dateTime);
 
+        Task<IEnumerable<TodoItem>> GetTodosDueTillNow(string username, DateTime dateTime);
+
         Task<MinimalUser> GetuserById(string id);
 
         Task<User> GetUserByUsername(string username);

@@ -284,6 +284,20 @@ namespace TodoAspNetCore.Controllers
             });
         }
 
+        [ActionName("due_till_now")]
+        [HttpGet]
+        public async Task<object> GetTodosDueTillNow([FromQuery]long dateTime)
+        {
+            DateTime date = FromUnixTime(dateTime);
+            string username = GetUsername(HttpContext);
+            IEnumerable<TodoItem> todos = await _dataService.GetTodosDueTillNow(username, date);
+            return Ok(new
+            {
+                success = true,
+                todos
+            });
+        }
+
         [ActionName("mark_incomplete_todo")]
         [HttpPatch]
         public async Task<object> MarkIncomplete([FromQuery]string id)

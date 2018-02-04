@@ -123,6 +123,13 @@ export const getTodoDueOn = date => {
         .catch(error => handleError(error, ERROR_MESSAGE));
 };
 
+export const getTodosDueTillNow = date => {
+    return axios
+        .get(`${BASE_URL}/todo/due_till_now?datetime=${date}`, getAuthHeader())
+        .then(response => response.data)
+        .catch(error => handleError(error, ERROR_MESSAGE));
+};
+
 export const setTodoState = (todoId, finalState) => {
     let url = `${BASE_URL}/todo/${
         finalState ? 'complete_todo' : 'mark_incomplete_todo'

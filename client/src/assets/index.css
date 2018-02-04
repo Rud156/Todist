@@ -95,9 +95,28 @@ a {
     z-index: 99999;
 }
 
-.ui.dropdown .menu {
-    right: 0;
-    left: auto;
+.align-screen {
+    float: right !important;
+    margin-right: 21px !important;
+}
+
+.align-screen > .menu.transition {
+    right: 0 !important;
+    left: auto !important;
+    top: calc(100% + 7px) !important;
+}
+
+.align-screen > .menu.transition > .header {
+    text-align: center;
+    border-bottom: solid 1px lightgray;
+    font-size: 0.7em;
+}
+
+.options-button {
+    padding: 7px;
+    border-radius: 7px;
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3));
+    text-align: center;
 }
 
 @media (max-width: 767px) {

@@ -121,7 +121,7 @@ namespace TodoAspNetCore.Services
 
         public void ConnectToDatabase()
         {
-            MongoUrl mongoUrl = new MongoUrl(mLabDB);
+            MongoUrl mongoUrl = new MongoUrl(localDB);
             _client = new MongoClient(mongoUrl);
             _database = _client.GetDatabase(databaseName);
             /* bool mongoLive = _database.RunCommandAsync((Command<BsonDocument>)"{ping:1}").Wait(1000);
@@ -236,6 +236,18 @@ namespace TodoAspNetCore.Services
                 _.StartDate >= dateTime.Date.Ticks &&
                 _.StartDate <= dateTime.Date.AddTicks(-1).AddDays(1).Ticks
                 );
+            List<TodoItem> todoList = await task.ToListAsync();
+            return FormatTodoList(todoList);
+        }
+
+        public async Task<IEnumerable<TodoItem>> GetTodosDueTillNow(string username, DateTime dateTime)
+        {
+            username = username.ToLower();
+            var task = await _todoCollection.FindAsync(
+                _ => _.Username == username &&
+                _.DueDate <= dateTime.Ticks &&
+                !   _.Completed
+            );
             List<TodoItem> todoList = await task.ToListAsync();
             return FormatTodoList(todoList);
         }
