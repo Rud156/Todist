@@ -286,11 +286,10 @@ namespace TodoAspNetCore.Controllers
 
         [ActionName("due_till_now")]
         [HttpGet]
-        public async Task<object> GetTodosDueTillNow([FromQuery]long dateTime)
+        public async Task<object> GetTodosDueTillNow()
         {
-            DateTime date = FromUnixTime(dateTime);
             string username = GetUsername(HttpContext);
-            IEnumerable<TodoItem> todos = await _dataService.GetTodosDueTillNow(username, date);
+            IEnumerable<TodoItem> todos = await _dataService.GetTodosDueTillNow(username, DateTime.UtcNow);
             return Ok(new
             {
                 success = true,
