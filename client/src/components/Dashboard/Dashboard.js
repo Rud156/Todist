@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, BrowserRouter, Switch, NavLink, Redirect } from 'react-router-dom';
+import { Route, Switch, NavLink, Redirect } from 'react-router-dom';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -117,7 +117,6 @@ class Dashboard extends Component {
 
     handleSearchSubmit() {
         if (this.state.searchTerm) {
-            // TODO: Fix Search
             this.props.history.push(`/dashboard/search/${this.state.searchTerm}`);
             this.setState({ searchTerm: '' });
         }
@@ -125,163 +124,153 @@ class Dashboard extends Component {
 
     render() {
         return (
-            <BrowserRouter>
-                <Sidebar.Pushable as={Segment}>
-                    <Sidebar
-                        as={Menu}
-                        animation="push"
-                        width="wide"
-                        visible={this.state.visible}
-                        vertical
-                    >
-                        <Menu.Item name="User">
-                            <Grid columns={this.state.mobileViewActive ? 3 : 2} divided>
-                                <Grid.Row>
+            <Sidebar.Pushable as={Segment}>
+                <Sidebar
+                    as={Menu}
+                    animation="push"
+                    width="wide"
+                    visible={this.state.visible}
+                    vertical
+                >
+                    <Menu.Item name="User">
+                        <Grid columns={this.state.mobileViewActive ? 3 : 2} divided>
+                            <Grid.Row>
+                                <Grid.Column width="four" textAlign="center">
+                                    <h3 onClick={this.logoutUser} className="pointer-cursor">
+                                        <Icon name="power" />
+                                    </h3>
+                                </Grid.Column>
+                                <Grid.Column width="eight" textAlign="center">
+                                    <h3>
+                                        <Icon name="user" />
+                                        {titleCase(this.props.user.userDetails.username)}
+                                    </h3>
+                                </Grid.Column>
+                                {this.state.mobileViewActive && (
                                     <Grid.Column width="four" textAlign="center">
-                                        <h3 onClick={this.logoutUser} className="pointer-cursor">
-                                            <Icon name="power" />
+                                        <h3 onClick={this.toggleSidebar} className="pointer-cursor">
+                                            <Icon name="close" />
                                         </h3>
                                     </Grid.Column>
-                                    <Grid.Column width="eight" textAlign="center">
-                                        <h3>
-                                            <Icon name="user" />
-                                            {titleCase(this.props.user.userDetails.username)}
-                                        </h3>
+                                )}
+                            </Grid.Row>
+                        </Grid>
+                    </Menu.Item>
+                    <Menu.Item name="Search">
+                        {this.state.displaySearch ? (
+                            <Grid columns={2}>
+                                <Grid.Row>
+                                    <Grid.Column width="twelve">
+                                        <Form onSubmit={this.handleSearchSubmit}>
+                                            <Form.Field className="text-left">
+                                                <input
+                                                    placeholder="Search away..."
+                                                    onChange={this.handleSearchTermChange}
+                                                    value={this.state.searchTerm}
+                                                />
+                                            </Form.Field>
+                                        </Form>
                                     </Grid.Column>
-                                    {this.state.mobileViewActive && (
-                                        <Grid.Column width="four" textAlign="center">
-                                            <h3
-                                                onClick={this.toggleSidebar}
-                                                className="pointer-cursor"
-                                            >
-                                                <Icon name="close" />
-                                            </h3>
-                                        </Grid.Column>
-                                    )}
+                                    <Grid.Column width="four">
+                                        <Button icon onClick={this.toggleSearch}>
+                                            <Icon name="close" />
+                                        </Button>
+                                    </Grid.Column>
                                 </Grid.Row>
                             </Grid>
-                        </Menu.Item>
-                        <Menu.Item name="Search">
-                            {this.state.displaySearch ? (
-                                <Grid columns={2}>
-                                    <Grid.Row>
-                                        <Grid.Column width="twelve">
-                                            <Form onSubmit={this.handleSearchSubmit}>
-                                                <Form.Field className="text-left">
-                                                    <input
-                                                        placeholder="Search away..."
-                                                        onChange={this.handleSearchTermChange}
-                                                        value={this.state.searchTerm}
-                                                    />
-                                                </Form.Field>
-                                            </Form>
-                                        </Grid.Column>
-                                        <Grid.Column width="four">
-                                            <Button icon onClick={this.toggleSearch}>
-                                                <Icon name="close" />
-                                            </Button>
-                                        </Grid.Column>
-                                    </Grid.Row>
-                                </Grid>
-                            ) : (
-                                <h3 onClick={this.toggleSearch} style={{ cursor: 'pointer' }}>
-                                    <Icon name="search" color="yellow" />
-                                    Search
-                                </h3>
-                            )}
-                        </Menu.Item>
-                        <Menu.Item
-                            name="New List"
-                            as={NavLink}
-                            to={`${this.props.match.url}/today`}
-                            activeClassName="link-active"
-                        >
-                            <h3>
-                                <Icon name="sun" color="orange" />
-                                My Day
+                        ) : (
+                            <h3 onClick={this.toggleSearch} style={{ cursor: 'pointer' }}>
+                                <Icon name="search" color="yellow" />
+                                Search
                             </h3>
-                        </Menu.Item>
-                        {this.props.user.userDetails.categories.map(element => {
-                            return (
-                                <Menu.Item
-                                    to={`${this.props.match.url}/lists/${element}`}
-                                    className="heading-font"
-                                    as={NavLink}
-                                    name="New List"
-                                    key={element}
-                                    activeClassName="link-active"
-                                >
-                                    {element}
-                                </Menu.Item>
-                            );
-                        })}
-                        {this.state.displayForm && (
-                            <Menu.Item name="Category Form">
-                                <Form onSubmit={this.handleNewListSubmit}>
-                                    <Form.Field className="text-left">
-                                        <input
-                                            placeholder="Todo title..."
-                                            onChange={this.handleCategoryNameChange}
-                                            value={this.state.categoryName}
-                                        />
-                                    </Form.Field>
-                                </Form>
-                            </Menu.Item>
                         )}
-                        <Menu.Item name="New List" onClick={this.toggleNewCategoryForm}>
-                            <Header as="h3" color="blue" className="heading-font">
-                                <Icon
-                                    name={this.state.displayForm ? 'close' : 'add'}
-                                    color="blue"
-                                />
-                                {this.state.displayForm ? 'Close' : 'New List'}
-                            </Header>
+                    </Menu.Item>
+                    <Menu.Item
+                        name="New List"
+                        as={NavLink}
+                        to={`${this.props.match.url}/today`}
+                        activeClassName="link-active"
+                    >
+                        <h3>
+                            <Icon name="sun" color="orange" />
+                            My Day
+                        </h3>
+                    </Menu.Item>
+                    {this.props.user.userDetails.categories.map(element => {
+                        return (
+                            <Menu.Item
+                                to={`${this.props.match.url}/lists/${element}`}
+                                className="heading-font"
+                                as={NavLink}
+                                name="New List"
+                                key={element}
+                                activeClassName="link-active"
+                            >
+                                {element}
+                            </Menu.Item>
+                        );
+                    })}
+                    {this.state.displayForm && (
+                        <Menu.Item name="Category Form">
+                            <Form onSubmit={this.handleNewListSubmit}>
+                                <Form.Field className="text-left">
+                                    <input
+                                        placeholder="Todo title..."
+                                        onChange={this.handleCategoryNameChange}
+                                        value={this.state.categoryName}
+                                    />
+                                </Form.Field>
+                            </Form>
                         </Menu.Item>
-                    </Sidebar>
-                    <Sidebar.Pusher>
-                        <Segment
-                            basic
-                            className="positon-relative"
-                            style={{
-                                width: this.state.visible
-                                    ? window.innerWidth - 350
-                                    : window.innerWidth,
-                            }}
-                        >
-                            <Responsive {...Responsive.onlyMobile}>
-                                <Button
-                                    circular
-                                    icon="sidebar"
-                                    size="large"
-                                    className="position-icon"
-                                    onClick={this.toggleSidebar}
+                    )}
+                    <Menu.Item name="New List" onClick={this.toggleNewCategoryForm}>
+                        <Header as="h3" color="blue" className="heading-font">
+                            <Icon name={this.state.displayForm ? 'close' : 'add'} color="blue" />
+                            {this.state.displayForm ? 'Close' : 'New List'}
+                        </Header>
+                    </Menu.Item>
+                </Sidebar>
+                <Sidebar.Pusher>
+                    <Segment
+                        basic
+                        className="positon-relative"
+                        style={{
+                            width: this.state.visible ? window.innerWidth - 350 : window.innerWidth,
+                        }}
+                    >
+                        <Responsive {...Responsive.onlyMobile}>
+                            <Button
+                                circular
+                                icon="sidebar"
+                                size="large"
+                                className="position-icon"
+                                onClick={this.toggleSidebar}
+                            />
+                        </Responsive>
+                        <Responsive onUpdate={this.handleOnUpdate}>
+                            <Switch>
+                                <Route
+                                    exact
+                                    path={`${this.props.match.url}/today`}
+                                    component={TodoList}
                                 />
-                            </Responsive>
-                            <Responsive onUpdate={this.handleOnUpdate}>
-                                <Switch>
-                                    <Route
-                                        exact
-                                        path={`${this.props.match.url}/today`}
-                                        component={TodoList}
-                                    />
-                                    <Route
-                                        path={`${this.props.match.url}/lists/:id`}
-                                        component={TodoList}
-                                    />
-                                    <Route
-                                        path={`${this.props.match.url}/search/:query`}
-                                        component={SearchList}
-                                    />
-                                    <Redirect
-                                        from={`${this.props.match.url}`}
-                                        to={`${this.props.match.url}/today`}
-                                    />
-                                </Switch>
-                            </Responsive>
-                        </Segment>
-                    </Sidebar.Pusher>
-                </Sidebar.Pushable>
-            </BrowserRouter>
+                                <Route
+                                    path={`${this.props.match.url}/lists/:id`}
+                                    component={TodoList}
+                                />
+                                <Route
+                                    path={`${this.props.match.url}/search/:query`}
+                                    component={SearchList}
+                                />
+                                <Redirect
+                                    from={`${this.props.match.url}`}
+                                    to={`${this.props.match.url}/today`}
+                                />
+                            </Switch>
+                        </Responsive>
+                    </Segment>
+                </Sidebar.Pusher>
+            </Sidebar.Pushable>
         );
     }
 }

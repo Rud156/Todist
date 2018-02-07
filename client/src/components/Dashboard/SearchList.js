@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 
 class SearchList extends Component {
-    constructor(props) {
-        super(props);
+    componentDidMount() {
 
-        console.log(this.props);
+    }
+    componentWillReceiveProps(nextProps) {
+
     }
 
     render() {
