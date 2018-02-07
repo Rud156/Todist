@@ -39,17 +39,10 @@ ReactDOM.render(
                         exact
                         path="/"
                         render={() => {
-                            return userIsLoggedIn() ? (
-                                <Redirect to="/dashboard" />
-                            ) : (
-                                <Homepage />
-                            );
+                            return userIsLoggedIn() ? <Redirect to="/dashboard" /> : <Homepage />;
                         }}
                     />
-                    <PrivateRoute
-                        path="/dashboard"
-                        component={TransitionHOC(Dashboard)}
-                    />
+                    <PrivateRoute path="/dashboard" component={TransitionHOC(Dashboard)} />
                 </Switch>
             </div>
         </BrowserRouter>

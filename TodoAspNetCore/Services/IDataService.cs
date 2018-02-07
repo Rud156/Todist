@@ -56,5 +56,7 @@ namespace TodoAspNetCore.Services
         Task<bool> RenameCategory(string username, string category, string newCategoryName);
 
         Task<TodoItem> UpdateTodo(ModifiedTodo modifiedTodo);
+
+        Task<IEnumerable<TodoItem>> SearchTodo(string username, string query);
     }
 }

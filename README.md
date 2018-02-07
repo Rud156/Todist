@@ -3,8 +3,12 @@
 > A simple todo application inspired by [Microsoft Todo](https://todo.microsoft.com/en-us)
 
 #### Currently only the API is almost complete and is avaliable at: http://asp-net-todo.azurewebsites.net/api
-
+#### Initial login could take some time as Azure shuts donw free servers after a few minutes.
 #### This is a work in progress.
+
+### Screenshots:
+![Home](./ScreenShots/Home.png)
+![Dashboard](./ScreenShots/Dashboard.png)
 
 ### Running it locally:
 #### Pre Requisite:

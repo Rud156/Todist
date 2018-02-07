@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/moment": "^2.13.0",
     "@types/react": "^16.0.36",
     "@types/react-dom": "^16.0.3",
     "@types/react-redux": "^5.0.14",
@@ -55,6 +57,7 @@
     "redux": "^3.7.2",
     "semantic-ui-css": "^2.2.12",
     "semantic-ui-react": "^0.77.1",
+    "serve": "^6.4.9",
     "style-loader": "0.19.0",
     "sw-precache-webpack-plugin": "0.11.4",
     "typescript": "^2.7.1",
@@ -67,7 +70,9 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "test": "node scripts/test.js --env=jsdom"
+    "test": "node scripts/test.js --env=jsdom",
+    "bs": "npm run build && serve build/",
+    "bd": "npm run build && firebase deploy"
   },
   "jest": {
     "collectCoverageFrom": [

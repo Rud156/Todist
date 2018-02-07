@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { todayRegex, listsRegex } from './../../utils/constants';
+import { todayRegex, listsRegex, searchRegex } from './../../utils/constants';
 import {
     getTodoFromCategory,
     setTodoState,
@@ -12,6 +12,7 @@ import {
     deleteTodo,
     deleteCategory,
     getTodosDueTillNow,
+    searchTodo,
 } from '../../utils/api';
 import { Grid, Header, List, Checkbox, Icon, Form, Dropdown } from 'semantic-ui-react';
 
@@ -26,11 +27,13 @@ class TodoList extends Component {
         let currentUrl = props.match.url;
         let today = todayRegex.test(currentUrl);
         let loading = todayRegex.test(currentUrl) || listsRegex.test(currentUrl);
+        let search = searchRegex.test(currentUrl);
 
         this.state = {
             todos: [],
             loading: loading,
             today: today,
+            search: search,
 
             displayCompleted: false,
 
@@ -90,15 +93,23 @@ class TodoList extends Component {
         this.optionsTrigger = this.optionsTrigger.bind(this);
         this.handleSortDropDownChange = this.handleSortDropDownChange.bind(this);
         this.handleOptionsDropDownChange = this.handleOptionsDropDownChange.bind(this);
+
+        this.getTodayData = this.getTodayData.bind(this);
+        this.getCategoryData = this.getCategoryData.bind(this);
+        this.getSearchData = this.getSearchData.bind(this);
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.match.url !== prevProps.match.url) {
             let currentUrl = this.props.match.url;
             let today = todayRegex.test(currentUrl);
-            let loading = todayRegex.test(currentUrl) || listsRegex.test(currentUrl);
+            let search = searchRegex.test(currentUrl);
+            let loading =
+                todayRegex.test(currentUrl) ||
+                listsRegex.test(currentUrl) ||
+                searchRegex.test(currentUrl);
 
-            this.setState({ today: today, loading: loading, todos: [] });
+            this.setState({ today: today, loading: loading, todos: [], search: search });
             this.onRouteChanged();
         }
     }
@@ -112,26 +123,46 @@ class TodoList extends Component {
         let currentUrl = this.props.match.url;
 
         if (todayRegex.test(currentUrl)) {
-            getTodosDueTillNow(moment().utc()).then(res => {
-                if (res.requireLogin) this.logoutUser();
-                else if (res.networkDown || res.error) console.log('Network Down');
-                else {
-                    this.setState({ todos: res.todos, loading: false });
-                }
-            });
+            this.getTodayData();
         } else if (listsRegex.test(currentUrl)) {
-            let category = this.props.match.params.id;
-
-            getTodoFromCategory(category).then(res => {
-                if (res.requireLogin) this.logoutUser();
-                else if (res.networkDown || res.error) console.log('Network Down');
-                else {
-                    this.setState({ todos: res.todos, loading: false });
-                }
-
-                console.log(res.todos);
-            });
+            this.getCategoryData();
+        } else if (searchRegex.test(currentUrl)) {
+            this.getSearchData();
         }
+    }
+
+    getTodayData() {
+        getTodosDueTillNow(moment().utc()).then(res => {
+            if (res.requireLogin) this.logoutUser();
+            else if (res.networkDown || res.error) console.log('Network Down');
+            else {
+                this.setState({ todos: res.todos, loading: false });
+            }
+        });
+    }
+
+    getCategoryData() {
+        let category = this.props.match.params.id;
+
+        getTodoFromCategory(category).then(res => {
+            if (res.requireLogin) this.logoutUser();
+            else if (res.networkDown || res.error) console.log('Network Down');
+            else {
+                this.setState({ todos: res.todos, loading: false });
+            }
+        });
+    }
+
+    getSearchData() {
+        let query = this.props.match.params.query;
+
+        searchTodo(query).then(res => {
+            if (res.requireLogin) this.logoutUser();
+            else if (res.networkDown || res.error) console.log('Network Down');
+            else {
+                this.setState({ todos: res.todos, loading: false, displayCompleted: true });
+            }
+        });
     }
 
     logoutUser() {
@@ -391,28 +422,32 @@ class TodoList extends Component {
                             <Header as="h2" className="position-bottom white-text full-width-100">
                                 {this.state.today
                                     ? `My Day - ${moment().format('dddd, MMMM D')}`
-                                    : this.props.match.params.id}
+                                    : this.state.search
+                                      ? `Search Results For - ${this.props.match.params.query}`
+                                      : this.props.match.params.id}
 
-                                {!this.state.today && (
-                                    <Dropdown
-                                        onChange={this.handleOptionsDropDownChange}
-                                        options={this.state.optionsDropDownOptions}
-                                        trigger={this.optionsTrigger()}
-                                        icon={null}
-                                        className="align-screen"
-                                        header="List Options"
-                                    />
-                                )}
-                                {!this.state.today && (
-                                    <Dropdown
-                                        trigger={this.sortTrigger()}
-                                        onChange={this.handleSortDropDownChange}
-                                        options={this.state.sortDropDownOptions}
-                                        icon={null}
-                                        className="align-screen"
-                                        header="Sort"
-                                    />
-                                )}
+                                {!this.state.today &&
+                                    !this.state.search && (
+                                        <Dropdown
+                                            onChange={this.handleOptionsDropDownChange}
+                                            options={this.state.optionsDropDownOptions}
+                                            trigger={this.optionsTrigger()}
+                                            icon={null}
+                                            className="align-screen"
+                                            header="List Options"
+                                        />
+                                    )}
+                                {!this.state.today &&
+                                    !this.state.search && (
+                                        <Dropdown
+                                            trigger={this.sortTrigger()}
+                                            onChange={this.handleSortDropDownChange}
+                                            options={this.state.sortDropDownOptions}
+                                            icon={null}
+                                            className="align-screen"
+                                            header="Sort"
+                                        />
+                                    )}
                             </Header>
                         </Grid.Column>
                         <Grid.Column stretched className="padding-top">
@@ -450,32 +485,35 @@ class TodoList extends Component {
                                         </List.Item>
                                     );
                                 })}
-                                {this.state.displayForm && (
+                                {this.state.displayForm &&
+                                    !this.state.search && (
+                                        <List.Item>
+                                            <List.Content>
+                                                <Form onSubmit={this.handleSubmit}>
+                                                    <Form.Field className="text-left">
+                                                        <input
+                                                            placeholder="Todo title..."
+                                                            onChange={this.handleTitleChange}
+                                                            value={this.state.todoTitle}
+                                                        />
+                                                    </Form.Field>
+                                                </Form>
+                                            </List.Content>
+                                        </List.Item>
+                                    )}
+                                {!this.state.search && (
                                     <List.Item>
+                                        <Icon
+                                            name="plus"
+                                            size="large"
+                                            className="pointer-cursor"
+                                            onClick={this.displayNewTodoForm}
+                                        />
                                         <List.Content>
-                                            <Form onSubmit={this.handleSubmit}>
-                                                <Form.Field className="text-left">
-                                                    <input
-                                                        placeholder="Todo title..."
-                                                        onChange={this.handleTitleChange}
-                                                        value={this.state.todoTitle}
-                                                    />
-                                                </Form.Field>
-                                            </Form>
+                                            <Header as="h4">Add New Todo</Header>
                                         </List.Content>
                                     </List.Item>
                                 )}
-                                <List.Item>
-                                    <Icon
-                                        name="plus"
-                                        size="large"
-                                        className="pointer-cursor"
-                                        onClick={this.displayNewTodoForm}
-                                    />
-                                    <List.Content>
-                                        <Header as="h4">Add New Todo</Header>
-                                    </List.Content>
-                                </List.Item>
                             </List>
                         </Grid.Column>
                     </Grid.Row>

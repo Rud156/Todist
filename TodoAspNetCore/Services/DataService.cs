@@ -381,5 +381,16 @@ namespace TodoAspNetCore.Services
             ReplaceOneResult modifiedTask = await _todoCollection.ReplaceOneAsync(_ => _.Id == modifiedTodo.Id, todoItem);
             return FormatTodoItem(todoItem);
         }
+
+        public async Task<IEnumerable<TodoItem>> SearchTodo(string username, string query)
+        {
+            query = query.ToLower();
+            var task = await _todoCollection.FindAsync(_ => 
+            _.Username == username && 
+            (_.Title.ToLower().Contains(query) || _.Note.ToLower().Contains(query))
+            );
+            List<TodoItem> todos = await task.ToListAsync();
+            return FormatTodoList(todos);
+        }
     }
 }

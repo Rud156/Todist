@@ -21,7 +21,7 @@ const handleError = (error, message) => {
             );
             if (error.response.status === 401)
                 return {
-                    requireLogin: true
+                    requireLogin: true,
                 };
         }
     } else if (!error.status) {
@@ -33,7 +33,7 @@ const handleError = (error, message) => {
             )
         );
         return {
-            networkDown: true
+            networkDown: true,
         };
     } else {
         store.dispatch(actionDisplayMessage(message, Date.now(), 'error'));
@@ -41,15 +41,15 @@ const handleError = (error, message) => {
 
     return {
         requireLogin: false,
-        error: true
+        error: true,
     };
 };
 
 const getAuthHeader = () => {
     return {
         headers: {
-            Authorization: 'Bearer ' + store.getState().user.token
-        }
+            Authorization: 'Bearer ' + store.getState().user.token,
+        },
     };
 };
 
@@ -57,7 +57,7 @@ export const loginUser = (username, password) => {
     return axios
         .post(`${BASE_URL}/auth/login`, {
             username,
-            password
+            password,
         })
         .then(response => response.data)
         .catch(error => handleError(error, ERROR_MESSAGE));
@@ -67,7 +67,7 @@ export const registerUser = (username, password) => {
     return axios
         .post(`${BASE_URL}/auth/register`, {
             username,
-            password
+            password,
         })
         .then(response => response.data)
         .catch(error => handleError(error, ERROR_MESSAGE));
@@ -94,7 +94,7 @@ export const addTodo = (title, category) => {
             `${BASE_URL}/todo/add_todo`,
             {
                 title,
-                category
+                category,
             },
             getAuthHeader()
         )
@@ -142,21 +142,22 @@ export const setTodoState = (todoId, finalState) => {
 
 export const updateTodo = (id, dueDate, note, priority) => {
     return axios
-        .put(
-            `${BASE_URL}/todo/update_todo`,
-            { id, dueDate, note, priority },
-            getAuthHeader()
-        )
+        .put(`${BASE_URL}/todo/update_todo`, { id, dueDate, note, priority }, getAuthHeader())
         .then(response => response.data)
         .catch(error => handleError(error, ERROR_MESSAGE));
 };
 
 export const deleteCategory = categoryName => {
     return axios
-        .delete(
-            `${BASE_URL}/todo/category?category=${categoryName}`,
-            getAuthHeader()
-        )
+        .delete(`${BASE_URL}/todo/category?category=${categoryName}`, getAuthHeader())
         .then(response => response.data)
         .catch(error => handleError(error, ERROR_MESSAGE));
+};
+
+export const searchTodo = query => {
+    let urlDecodedQuery = decodeURIComponent(query);
+    return axios
+        .get(`${BASE_URL}/todo/search?query=${urlDecodedQuery}`, getAuthHeader())
+        .then(response => response.data)
+        .catch(error => handleError(error));
 };

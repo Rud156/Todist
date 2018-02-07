@@ -297,6 +297,19 @@ namespace TodoAspNetCore.Controllers
             });
         }
 
+        [ActionName("search")]
+        [HttpGet]
+        public async Task<object> SearchTodo([FromQuery]string query)
+        {
+            string username = GetUsername(HttpContext);
+            IEnumerable<TodoItem> todos = await _dataService.SearchTodo(username, query);
+            return Ok(new
+            {
+                success = true,
+                todos
+            });
+        } 
+
         [ActionName("mark_incomplete_todo")]
         [HttpPatch]
         public async Task<object> MarkIncomplete([FromQuery]string id)

@@ -19,9 +19,7 @@ import {
 import { titleCase } from './../../utils/constants';
 import { actionRemoveUser, actionAddUser } from '../../actions/UserAction';
 import { getUserDetails, addCategory } from '../../utils/api';
-
 import TodoList from './TodoList';
-import SearchList from './SearchList';
 
 class Dashboard extends Component {
     constructor(props) {
@@ -95,9 +93,12 @@ class Dashboard extends Component {
     }
 
     handleSearchTermChange(event) {
-        this.setState({
-            searchTerm: event.target.value,
-        });
+        let query = event.target.value;
+        this.setState({ searchTerm: query });
+
+        if (query) {
+            this.props.history.push(`/dashboard/search/${query}`);
+        }
     }
 
     handleCategoryNameChange(event) {
@@ -260,7 +261,7 @@ class Dashboard extends Component {
                                 />
                                 <Route
                                     path={`${this.props.match.url}/search/:query`}
-                                    component={SearchList}
+                                    component={TodoList}
                                 />
                                 <Redirect
                                     from={`${this.props.match.url}`}
