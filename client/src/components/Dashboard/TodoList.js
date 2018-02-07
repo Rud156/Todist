@@ -11,17 +11,9 @@ import {
     addTodo,
     deleteTodo,
     deleteCategory,
-    getTodosDueTillNow
+    getTodosDueTillNow,
 } from '../../utils/api';
-import {
-    Grid,
-    Header,
-    List,
-    Checkbox,
-    Icon,
-    Form,
-    Dropdown
-} from 'semantic-ui-react';
+import { Grid, Header, List, Checkbox, Icon, Form, Dropdown } from 'semantic-ui-react';
 
 import EditableModal from './EditableModal';
 import DeleteModal from './DeleteModal';
@@ -33,8 +25,7 @@ class TodoList extends Component {
 
         let currentUrl = props.match.url;
         let today = todayRegex.test(currentUrl);
-        let loading =
-            todayRegex.test(currentUrl) || listsRegex.test(currentUrl);
+        let loading = todayRegex.test(currentUrl) || listsRegex.test(currentUrl);
 
         this.state = {
             todos: [],
@@ -59,15 +50,16 @@ class TodoList extends Component {
                     key: 3,
                     text: 'Sort Alphabetically',
                     value: 2,
-                    icon: 'sort alphabet ascending'
+                    icon: 'sort alphabet ascending',
                 },
                 {
                     key: 4,
                     text: 'Sort Completed',
                     value: 3,
-                    icon: 'sort content ascending'
+                    icon: 'sort content ascending',
                 },
-                { key: 5, text: 'Sort Added To My Day', value: 4, icon: 'sun' }
+                { key: 5, text: 'Sort Priority', value: 4, icon: 'exclamation' },
+                { key: 6, text: 'Sort Added To My Day', value: 5, icon: 'sun' },
             ],
 
             optionsDropDownOptions: [
@@ -75,10 +67,10 @@ class TodoList extends Component {
                     key: 1,
                     text: 'Toggle Completed',
                     value: 0,
-                    icon: 'check square'
+                    icon: 'check square',
                 },
-                { key: 2, text: 'Delete List', value: 1, icon: 'trash' }
-            ]
+                { key: 2, text: 'Delete List', value: 1, icon: 'trash' },
+            ],
         };
 
         // There is slash at the beginning
@@ -96,20 +88,15 @@ class TodoList extends Component {
         this.deleteManager = this.deleteManager.bind(this);
         this.sortTrigger = this.sortTrigger.bind(this);
         this.optionsTrigger = this.optionsTrigger.bind(this);
-        this.handleSortDropDownChange = this.handleSortDropDownChange.bind(
-            this
-        );
-        this.handleOptionsDropDownChange = this.handleOptionsDropDownChange.bind(
-            this
-        );
+        this.handleSortDropDownChange = this.handleSortDropDownChange.bind(this);
+        this.handleOptionsDropDownChange = this.handleOptionsDropDownChange.bind(this);
     }
 
     componentDidUpdate(prevProps) {
         if (this.props.match.url !== prevProps.match.url) {
             let currentUrl = this.props.match.url;
             let today = todayRegex.test(currentUrl);
-            let loading =
-                todayRegex.test(currentUrl) || listsRegex.test(currentUrl);
+            let loading = todayRegex.test(currentUrl) || listsRegex.test(currentUrl);
 
             this.setState({ today: today, loading: loading, todos: [] });
             this.onRouteChanged();
@@ -127,8 +114,7 @@ class TodoList extends Component {
         if (todayRegex.test(currentUrl)) {
             getTodosDueTillNow(moment().utc()).then(res => {
                 if (res.requireLogin) this.logoutUser();
-                else if (res.networkDown || res.error)
-                    console.log('Network Down');
+                else if (res.networkDown || res.error) console.log('Network Down');
                 else {
                     this.setState({ todos: res.todos, loading: false });
                 }
@@ -138,8 +124,7 @@ class TodoList extends Component {
 
             getTodoFromCategory(category).then(res => {
                 if (res.requireLogin) this.logoutUser();
-                else if (res.networkDown || res.error)
-                    console.log('Network Down');
+                else if (res.networkDown || res.error) console.log('Network Down');
                 else {
                     this.setState({ todos: res.todos, loading: false });
                 }
@@ -160,8 +145,7 @@ class TodoList extends Component {
             else if (res.networkDown || res.error) console.log('Network Down');
             else {
                 let todos = this.state.todos.map(element => {
-                    if (element.id === todoId)
-                        element.completed = !currentState;
+                    if (element.id === todoId) element.completed = !currentState;
                     return element;
                 });
                 this.setState({ todos: todos });
@@ -181,9 +165,7 @@ class TodoList extends Component {
         let title = this.state.todoTitle;
         let url = this.props.match.url;
 
-        let category = todayRegex.test(url)
-            ? 'Todo'
-            : this.props.match.params.id;
+        let category = todayRegex.test(url) ? 'Todo' : this.props.match.params.id;
 
         addTodo(title, category).then(res => {
             if (res.requireLogin) this.logoutUser();
@@ -195,7 +177,7 @@ class TodoList extends Component {
                     this.setState({
                         todos: todos,
                         displayForm: false,
-                        todoTitle: ''
+                        todoTitle: '',
                     });
                 }
             }
@@ -210,7 +192,7 @@ class TodoList extends Component {
         if (!todoItem.id)
             this.setState({
                 openEditableModal: false,
-                selectedTodoObject: { title: '', priority: 0, notes: '' }
+                selectedTodoObject: { title: '', priority: 0, notes: '' },
             });
         else {
             let { todos } = this.state;
@@ -221,7 +203,7 @@ class TodoList extends Component {
             this.setState({
                 openEditableModal: false,
                 selectedTodoObject: { title: '', priority: 0, notes: '' },
-                todos: todos
+                todos: todos,
             });
         }
     }
@@ -234,7 +216,7 @@ class TodoList extends Component {
         this.setState({
             openDeleteModal: false,
             selectedTodoObject: { title: '', priority: 0, notes: '' },
-            deleteCategorySelected: false
+            deleteCategorySelected: false,
         });
     }
 
@@ -256,7 +238,7 @@ class TodoList extends Component {
                     openDeleteModal: false,
                     selectedTodoObject: { title: '', priority: 0, notes: '' },
                     deleteLoading: false,
-                    todos: todos
+                    todos: todos,
                 });
             }
         });
@@ -273,13 +255,13 @@ class TodoList extends Component {
                 this.setState({
                     deleteLoading: false,
                     openDeleteModal: false,
-                    deleteCategorySelected: false
+                    deleteCategorySelected: false,
                 });
             } else {
                 this.setState({
                     deleteLoading: false,
                     openDeleteModal: false,
-                    deleteCategorySelected: false
+                    deleteCategorySelected: false,
                 });
                 this.props.removeCategory(categoryName);
                 this.props.history.push('/dashboard/today');
@@ -297,39 +279,43 @@ class TodoList extends Component {
             case 0:
                 // Sort Due Date
                 let dueTodos = this.state.todos.sort(
-                    (a, b) =>
-                        new Date(a.dueDate * 1000) - new Date(b.dueDate * 1000)
+                    (a, b) => new Date(a.dueDate * 1000) - new Date(b.dueDate * 1000)
                 );
                 this.setState({ todos: dueTodos });
                 break;
             case 1:
                 // Sort Start Date
                 let startTodos = this.state.todos.sort(
-                    (a, b) =>
-                        new Date(a.startDate * 1000) -
-                        new Date(b.startDate * 1000)
+                    (a, b) => new Date(a.startDate * 1000) - new Date(b.startDate * 1000)
                 );
                 this.setState({ todos: startTodos });
                 break;
             case 2:
                 // Sort Alphabetically
-                let alphaTodos = this.state.todos.sort((a, b) =>
-                    a.title.localeCompare(b.title)
-                );
+                let alphaTodos = this.state.todos.sort((a, b) => a.title.localeCompare(b.title));
                 this.setState({ todos: alphaTodos });
                 break;
             case 3:
                 // Sort Completed
                 let sortCompletedTodos = this.state.todos.sort(
-                    (a, b) =>
-                        a.completed === b.completed ? 0 : a.completed ? -1 : 1
+                    (a, b) => (a.completed === b.completed ? 0 : a.completed ? -1 : 1)
                 );
                 this.setState({
                     todos: sortCompletedTodos,
-                    displayCompleted: true
+                    displayCompleted: true,
                 });
                 break;
             case 4:
+                // Sort Priority
+                let priorityTodos = this.state.todos.sort((a, b) => {
+                    return a.priority - b.priority;
+                });
+                this.setState({
+                    todos: priorityTodos,
+                    displayCompleted: false,
+                });
+                break;
+            case 5:
                 // Sort Added To My Day
                 let dayTodos = this.state.todos.sort((a, b) => {
                     let date_1 = moment(a.dueDate * 1000);
@@ -358,7 +344,7 @@ class TodoList extends Component {
                 this.setState({
                     deleteCategorySelected: true,
                     openDeleteModal: true,
-                    displayCompleted: true
+                    displayCompleted: true,
                 });
                 break;
             default:
@@ -378,11 +364,7 @@ class TodoList extends Component {
     optionsTrigger() {
         return (
             <span className="options-button">
-                <Icon
-                    name="ellipsis horizontal"
-                    size="small"
-                    style={{ marginRight: 0 }}
-                />
+                <Icon name="ellipsis horizontal" size="small" style={{ marginRight: 0 }} />
             </span>
         );
     }
@@ -406,24 +388,15 @@ class TodoList extends Component {
                 <Grid columns="one">
                     <Grid.Row className="no-padding-margin">
                         <Grid.Column stretched className="fixed-height">
-                            <Header
-                                as="h2"
-                                className="position-bottom white-text full-width-100"
-                            >
+                            <Header as="h2" className="position-bottom white-text full-width-100">
                                 {this.state.today
-                                    ? `My Day - ${moment().format(
-                                          'dddd, MMMM D'
-                                      )}`
+                                    ? `My Day - ${moment().format('dddd, MMMM D')}`
                                     : this.props.match.params.id}
 
                                 {!this.state.today && (
                                     <Dropdown
-                                        onChange={
-                                            this.handleOptionsDropDownChange
-                                        }
-                                        options={
-                                            this.state.optionsDropDownOptions
-                                        }
+                                        onChange={this.handleOptionsDropDownChange}
+                                        options={this.state.optionsDropDownOptions}
                                         trigger={this.optionsTrigger()}
                                         icon={null}
                                         className="align-screen"
@@ -445,10 +418,7 @@ class TodoList extends Component {
                         <Grid.Column stretched className="padding-top">
                             <List divided verticalAlign="middle" relaxed>
                                 {this.state.todos.map(element => {
-                                    if (
-                                        !this.state.displayCompleted &&
-                                        element.completed
-                                    )
+                                    if (!this.state.displayCompleted && element.completed)
                                         return null;
 
                                     return (
@@ -465,9 +435,7 @@ class TodoList extends Component {
                                                 />
                                             </List.Content>
                                             <List.Content floated="left">
-                                                <Header as="h4">
-                                                    {element.title}
-                                                </Header>
+                                                <Header as="h4">{element.title}</Header>
                                             </List.Content>
                                             <List.Content floated="right">
                                                 <Icon
@@ -475,9 +443,7 @@ class TodoList extends Component {
                                                     size="large"
                                                     className="pointer-cursor"
                                                     onClick={() => {
-                                                        this.handleTodoSelected(
-                                                            element
-                                                        );
+                                                        this.handleTodoSelected(element);
                                                     }}
                                                 />
                                             </List.Content>
@@ -491,13 +457,8 @@ class TodoList extends Component {
                                                 <Form.Field className="text-left">
                                                     <input
                                                         placeholder="Todo title..."
-                                                        onChange={
-                                                            this
-                                                                .handleTitleChange
-                                                        }
-                                                        value={
-                                                            this.state.todoTitle
-                                                        }
+                                                        onChange={this.handleTitleChange}
+                                                        value={this.state.todoTitle}
                                                     />
                                                 </Form.Field>
                                             </Form>
@@ -527,7 +488,7 @@ class TodoList extends Component {
 function matchDispatchToProps(dispatch) {
     return bindActionCreators(
         {
-            removeCategory: actionRemoveCategory
+            removeCategory: actionRemoveCategory,
         },
         dispatch
     );

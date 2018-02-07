@@ -6,7 +6,7 @@ namespace TodoAspNetCore.Models
     public class NewTodo
     {
         [Required]
-        [MinLength(3)]
+        [MinLength(1)]
         public string Title { get; set; }
 
         [Required]

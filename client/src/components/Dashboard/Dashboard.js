@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
-import {
-    Route,
-    BrowserRouter,
-    Switch,
-    NavLink,
-    Redirect
-} from 'react-router-dom';
+import { Route, BrowserRouter, Switch, NavLink, Redirect } from 'react-router-dom';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -19,13 +13,15 @@ import {
     Grid,
     Responsive,
     Button,
-    Form
+    Form,
 } from 'semantic-ui-react';
 
 import { titleCase } from './../../utils/constants';
 import { actionRemoveUser, actionAddUser } from '../../actions/UserAction';
 import { getUserDetails, addCategory } from '../../utils/api';
+
 import TodoList from './TodoList';
+import SearchList from './SearchList';
 
 class Dashboard extends Component {
     constructor(props) {
@@ -36,17 +32,21 @@ class Dashboard extends Component {
             mobileViewActive: false,
 
             displayForm: false,
-            categoryName: ''
+            categoryName: '',
+
+            displaySearch: false,
+            searchTerm: '',
         };
 
         this.logoutUser = this.logoutUser.bind(this);
         this.handleOnUpdate = this.handleOnUpdate.bind(this);
         this.toggleSidebar = this.toggleSidebar.bind(this);
         this.toggleNewCategoryForm = this.toggleNewCategoryForm.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleCategoryNameChange = this.handleCategoryNameChange.bind(
-            this
-        );
+        this.toggleSearch = this.toggleSearch.bind(this);
+        this.handleSearchTermChange = this.handleSearchTermChange.bind(this);
+        this.handleNewListSubmit = this.handleNewListSubmit.bind(this);
+        this.handleCategoryNameChange = this.handleCategoryNameChange.bind(this);
+        this.handleSearchSubmit = this.handleSearchSubmit.bind(this);
     }
 
     componentWillMount() {
@@ -89,11 +89,22 @@ class Dashboard extends Component {
         this.setState({ displayForm: !display });
     }
 
+    toggleSearch() {
+        let displaySearch = this.state.displaySearch;
+        this.setState({ displaySearch: !displaySearch });
+    }
+
+    handleSearchTermChange(event) {
+        this.setState({
+            searchTerm: event.target.value,
+        });
+    }
+
     handleCategoryNameChange(event) {
         this.setState({ categoryName: event.target.value });
     }
 
-    handleSubmit() {
+    handleNewListSubmit() {
         addCategory(this.state.categoryName).then(res => {
             if (res.requireLogin) this.logoutUser();
             else if (res.networkDown || res.error) console.log('Network Down');
@@ -102,6 +113,14 @@ class Dashboard extends Component {
                 this.setState({ displayForm: false, categoryName: '' });
             }
         });
+    }
+
+    handleSearchSubmit() {
+        if (this.state.searchTerm) {
+            // TODO: Fix Search
+            this.props.history.push(`/dashboard/search/${this.state.searchTerm}`);
+            this.setState({ searchTerm: '' });
+        }
     }
 
     render() {
@@ -116,39 +135,21 @@ class Dashboard extends Component {
                         vertical
                     >
                         <Menu.Item name="User">
-                            <Grid
-                                columns={this.state.mobileViewActive ? 3 : 2}
-                                divided
-                            >
+                            <Grid columns={this.state.mobileViewActive ? 3 : 2} divided>
                                 <Grid.Row>
-                                    <Grid.Column
-                                        width="four"
-                                        textAlign="center"
-                                    >
-                                        <h3
-                                            onClick={this.logoutUser}
-                                            className="pointer-cursor"
-                                        >
+                                    <Grid.Column width="four" textAlign="center">
+                                        <h3 onClick={this.logoutUser} className="pointer-cursor">
                                             <Icon name="power" />
                                         </h3>
                                     </Grid.Column>
-                                    <Grid.Column
-                                        width="eight"
-                                        textAlign="center"
-                                    >
+                                    <Grid.Column width="eight" textAlign="center">
                                         <h3>
                                             <Icon name="user" />
-                                            {titleCase(
-                                                this.props.user.userDetails
-                                                    .username
-                                            )}
+                                            {titleCase(this.props.user.userDetails.username)}
                                         </h3>
                                     </Grid.Column>
                                     {this.state.mobileViewActive && (
-                                        <Grid.Column
-                                            width="four"
-                                            textAlign="center"
-                                        >
+                                        <Grid.Column width="four" textAlign="center">
                                             <h3
                                                 onClick={this.toggleSidebar}
                                                 className="pointer-cursor"
@@ -159,6 +160,35 @@ class Dashboard extends Component {
                                     )}
                                 </Grid.Row>
                             </Grid>
+                        </Menu.Item>
+                        <Menu.Item name="Search">
+                            {this.state.displaySearch ? (
+                                <Grid columns={2}>
+                                    <Grid.Row>
+                                        <Grid.Column width="twelve">
+                                            <Form onSubmit={this.handleSearchSubmit}>
+                                                <Form.Field className="text-left">
+                                                    <input
+                                                        placeholder="Search away..."
+                                                        onChange={this.handleSearchTermChange}
+                                                        value={this.state.searchTerm}
+                                                    />
+                                                </Form.Field>
+                                            </Form>
+                                        </Grid.Column>
+                                        <Grid.Column width="four">
+                                            <Button icon onClick={this.toggleSearch}>
+                                                <Icon name="close" />
+                                            </Button>
+                                        </Grid.Column>
+                                    </Grid.Row>
+                                </Grid>
+                            ) : (
+                                <h3 onClick={this.toggleSearch} style={{ cursor: 'pointer' }}>
+                                    <Icon name="search" color="yellow" />
+                                    Search
+                                </h3>
+                            )}
                         </Menu.Item>
                         <Menu.Item
                             name="New List"
@@ -174,9 +204,7 @@ class Dashboard extends Component {
                         {this.props.user.userDetails.categories.map(element => {
                             return (
                                 <Menu.Item
-                                    to={`${
-                                        this.props.match.url
-                                    }/lists/${element}`}
+                                    to={`${this.props.match.url}/lists/${element}`}
                                     className="heading-font"
                                     as={NavLink}
                                     name="New List"
@@ -189,32 +217,21 @@ class Dashboard extends Component {
                         })}
                         {this.state.displayForm && (
                             <Menu.Item name="Category Form">
-                                <Form onSubmit={this.handleSubmit}>
+                                <Form onSubmit={this.handleNewListSubmit}>
                                     <Form.Field className="text-left">
                                         <input
                                             placeholder="Todo title..."
-                                            onChange={
-                                                this.handleCategoryNameChange
-                                            }
+                                            onChange={this.handleCategoryNameChange}
                                             value={this.state.categoryName}
                                         />
                                     </Form.Field>
                                 </Form>
                             </Menu.Item>
                         )}
-                        <Menu.Item
-                            name="New List"
-                            onClick={this.toggleNewCategoryForm}
-                        >
-                            <Header
-                                as="h3"
-                                color="blue"
-                                className="heading-font"
-                            >
+                        <Menu.Item name="New List" onClick={this.toggleNewCategoryForm}>
+                            <Header as="h3" color="blue" className="heading-font">
                                 <Icon
-                                    name={
-                                        this.state.displayForm ? 'close' : 'add'
-                                    }
+                                    name={this.state.displayForm ? 'close' : 'add'}
                                     color="blue"
                                 />
                                 {this.state.displayForm ? 'Close' : 'New List'}
@@ -228,7 +245,7 @@ class Dashboard extends Component {
                             style={{
                                 width: this.state.visible
                                     ? window.innerWidth - 350
-                                    : window.innerWidth
+                                    : window.innerWidth,
                             }}
                         >
                             <Responsive {...Responsive.onlyMobile}>
@@ -248,10 +265,12 @@ class Dashboard extends Component {
                                         component={TodoList}
                                     />
                                     <Route
-                                        path={`${
-                                            this.props.match.url
-                                        }/lists/:id`}
+                                        path={`${this.props.match.url}/lists/:id`}
                                         component={TodoList}
+                                    />
+                                    <Route
+                                        path={`${this.props.match.url}/search/:query`}
+                                        component={SearchList}
                                     />
                                     <Redirect
                                         from={`${this.props.match.url}`}
@@ -269,7 +288,7 @@ class Dashboard extends Component {
 
 function mapStateToProps(state) {
     return {
-        user: state.user
+        user: state.user,
     };
 }
 
@@ -277,12 +296,10 @@ function matchDispatchToProps(dispatch) {
     return bindActionCreators(
         {
             removeUser: actionRemoveUser,
-            addUser: actionAddUser
+            addUser: actionAddUser,
         },
         dispatch
     );
 }
 
-export default withRouter(
-    connect(mapStateToProps, matchDispatchToProps)(Dashboard)
-);
+export default withRouter(connect(mapStateToProps, matchDispatchToProps)(Dashboard));
