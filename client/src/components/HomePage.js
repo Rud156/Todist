@@ -16,8 +16,8 @@ class HomePage extends Component {
         this.state = {
             showLogin: false,
             user: {
-                username: 'Rud156',
-                password: '12345'
+                username: '',
+                password: ''
             },
             errorMessages: [],
             loading: false

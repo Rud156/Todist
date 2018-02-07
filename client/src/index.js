@@ -43,6 +43,7 @@ ReactDOM.render(
                         }}
                     />
                     <PrivateRoute path="/dashboard" component={TransitionHOC(Dashboard)} />
+                    <Route render={() => <Redirect to="/" />} />
                 </Switch>
             </div>
         </BrowserRouter>

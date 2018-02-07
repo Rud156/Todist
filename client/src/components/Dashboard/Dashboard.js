@@ -267,6 +267,7 @@ class Dashboard extends Component {
                                     from={`${this.props.match.url}`}
                                     to={`${this.props.match.url}/today`}
                                 />
+                                <Route render={() => <Redirect to="/dashboard/today" />} />
                             </Switch>
                         </Responsive>
                     </Segment>
