@@ -2,7 +2,8 @@
 
 > A simple todo application inspired by [Microsoft Todo](https://todo.microsoft.com/en-us)
 
-#### Currently only the API is almost complete and is avaliable at: http://asp-net-todo.azurewebsites.net/api
+#### The API is almost complete and is avaliable at: https://asp-net-todo.azurewebsites.net/api
+#### The application is avaliable at: https://todist-app.firebaseapp.com/
 #### Initial login could take some time as Azure shuts donw free servers after a few minutes.
 #### This is a work in progress.
 
