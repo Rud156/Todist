@@ -132,6 +132,8 @@ class TodoList extends Component {
     }
 
     getTodayData() {
+        document.title = 'Today | Dashboard';
+
         getTodosDueTillNow(moment().utc()).then(res => {
             if (res.requireLogin) this.logoutUser();
             else if (res.networkDown || res.error) console.log('Network Down');
@@ -143,6 +145,7 @@ class TodoList extends Component {
 
     getCategoryData() {
         let category = this.props.match.params.id;
+        document.title = `${category} | Dashboard`;
 
         getTodoFromCategory(category).then(res => {
             if (res.requireLogin) this.logoutUser();
@@ -155,6 +158,7 @@ class TodoList extends Component {
 
     getSearchData() {
         let query = this.props.match.params.query;
+        document.title = `${query} | Dashboard`;
 
         searchTodo(query).then(res => {
             if (res.requireLogin) this.logoutUser();
